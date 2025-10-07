@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.1.0...v1.2.0) (2025-10-07)
+
+
+### Bug Fixes
+
+* correct calculation and restore new sub button ([c7ee5e9](https://github.com/gkalian/amuzing-subs-calendar/commit/c7ee5e92989ffff9d7d61b6a2ce350fc3670923d))
+* make days with subs as buttons ([19f8a45](https://github.com/gkalian/amuzing-subs-calendar/commit/19f8a458338fc634f1ce5a06f48ce76fdc23056d))
+* move logs to debug level ([27ec775](https://github.com/gkalian/amuzing-subs-calendar/commit/27ec775b3bc94ed9846f6691352d21a84aa32191))
+
+
+### Features
+
+* basic dialog to see subs added ([000eb86](https://github.com/gkalian/amuzing-subs-calendar/commit/000eb86372a5139b004c23a54d6346a8dfdc9240))
+
 # [1.1.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.0.0...v1.1.0) (2025-10-07)
 
 
