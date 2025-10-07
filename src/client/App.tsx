@@ -28,6 +28,7 @@ function App() {
   const [subscriptions, setSubscriptions] = useState<ServerSubscription[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
+  const [, setDatePreview] = useState<string | null>(null);
   const api = useMemo(() => new ApiAdapter(), []);
   const settingsApi = useMemo(() => new SettingsAdapter(), []);
 
@@ -77,6 +78,10 @@ function App() {
   const handleSelectYear = (year: number) => {
     setViewDate((prev) => prev.year(year));
   };
+  const handleSubscriptionDateClick = (isoDate: string) => {
+    setDatePreview(isoDate);
+    console.debug('Selected subscription date:', isoDate);
+  };
 
   // Monthly total for current view month and selected currency
   const monthlyTotalText = useMemo(() => {
@@ -121,6 +126,7 @@ function App() {
               currencySymbol={selectedCurrency?.symbol ?? ''}
               markedDates={markedDates}
               monthlyTotalText={monthlyTotalText}
+              onSubscriptionDateClick={handleSubscriptionDateClick}
             />
           </div>
           {selectedCurrency && (

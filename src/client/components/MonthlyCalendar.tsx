@@ -47,6 +47,7 @@ type MonthlyCalendarProps = {
   markedDates?: Set<string>;
   // Pre-formatted monthly total text (e.g., "123.45 €"). Falls back to 0.00 when not provided.
   monthlyTotalText?: string;
+  onSubscriptionDateClick?: (isoDate: string) => void;
 };
 
 function MonthlyCalendar({
@@ -60,6 +61,7 @@ function MonthlyCalendar({
   currencySymbol,
   markedDates,
   monthlyTotalText,
+  onSubscriptionDateClick,
 }: MonthlyCalendarProps) {
   const weeks = useMemo(() => getCalendarMatrix(viewDate), [viewDate]);
   const monthLabel = viewDate.format('MMMM');
@@ -199,6 +201,8 @@ function MonthlyCalendar({
                 const isToday = date.isSame(today, 'day');
                 const isWeekend = date.day() === 0 || date.day() === 6;
                 const isoDate = date.format('YYYY-MM-DD');
+                const hasSubscriptions = isCurrentMonth && markedDates?.has(isoDate);
+                const isClickable = hasSubscriptions && Boolean(onSubscriptionDateClick);
 
                 return (
                   <div
@@ -207,7 +211,31 @@ function MonthlyCalendar({
                       isCurrentMonth ? 'text-[var(--text)]' : 'text-[var(--text-muted)]/20'
                     } ${isWeekend && isCurrentMonth ? 'bg-[var(--surface)]' : ''} ${
                       isToday ? 'bg-[var(--today-bg)]' : ''
-                    }`}
+                    } ${isClickable ? 'cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]' : ''}`}
+                    role={isClickable ? 'button' : undefined}
+                    tabIndex={isClickable ? 0 : undefined}
+                    aria-label={
+                      isClickable
+                        ? `View subscriptions for ${date.format('D MMMM YYYY')}`
+                        : undefined
+                    }
+                    onClick={
+                      isClickable
+                        ? () => {
+                            onSubscriptionDateClick?.(isoDate);
+                          }
+                        : undefined
+                    }
+                    onKeyDown={
+                      isClickable
+                        ? (event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                              event.preventDefault();
+                              onSubscriptionDateClick?.(isoDate);
+                            }
+                          }
+                        : undefined
+                    }
                   >
                     {isCurrentMonth ? (
                       <span
@@ -225,7 +253,7 @@ function MonthlyCalendar({
                       </span>
                     )}
                     {/* Mark dot if the date is in markedDates. Using a simple bullet to avoid style changes. */}
-                    {isCurrentMonth && markedDates?.has(isoDate) && (
+                    {hasSubscriptions && (
                       <span
                         className="absolute right-2 top-2"
                         aria-hidden
