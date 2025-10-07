@@ -62,7 +62,7 @@ export class Logger {
   }
 }
 
-export const logger = new Logger({ name: 'app' });
+export const logger = new Logger();
 
 // Wrap a route handler to automatically log method, status, duration, requestId and optional endpoint metadata.
 export function withEndpointLogging(
@@ -75,7 +75,7 @@ export function withEndpointLogging(
       // Attach any endpoint-specific metadata if handler set it into res.locals.endpointMeta
       const requestId = (res.locals as any)?.requestId as string | undefined;
       const endpointMeta = ((res.locals as any)?.endpointMeta || {}) as Record<string, unknown>;
-      logger.info(name, {
+      logger.debug(name, {
         method: req.method,
         status: res.statusCode,
         durationMs: Date.now() - start,
