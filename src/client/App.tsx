@@ -26,6 +26,7 @@ function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [markedDates, setMarkedDates] = useState<Set<string>>(new Set());
   const [subscriptions, setSubscriptions] = useState<ServerSubscription[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const api = useMemo(() => new ApiAdapter(), []);
 
   // Load existing subscriptions on first render and mark their dates
@@ -36,8 +37,9 @@ function App() {
         setSubscriptions(subs);
         const dates = new Set<string>(subs.map((s) => s.startDate));
         setMarkedDates(dates);
+        setLoadError(null);
       } catch {
-        // noop for now
+        setLoadError('Subscriptions can not be loaded. Try o refresh the page');
       }
     })();
   }, [api]);
@@ -64,6 +66,11 @@ function App() {
 
   return (
     <main className="min-h-dvh overflow-y-hidden bg-gradient-to-br from-[var(--bg-gradient-from)] via-[var(--bg-gradient-via)] to-[var(--bg-gradient-to)] flex flex-col">
+      {loadError && (
+        <div className="bg-red-500/20 text-red-200 border border-red-500/40 px-4 py-2 text-center text-sm">
+          {loadError}
+        </div>
+      )}
       <div className="mx-auto flex max-w-4xl items-center justify-center px-4 py-6 flex-1">
         <div className="flex w-full max-w-4xl min-w-[600px] flex-col gap-2 rounded-3xl border border-white/[0.05] bg-white/[0.04] px-4 py-5 shadow-[0_28px_72px_-56px_rgba(13,148,136,0.55)] backdrop-blur-xl">
           <div className="flex flex-col lg:flex-row lg:items-stretch lg:gap-[5px]">
