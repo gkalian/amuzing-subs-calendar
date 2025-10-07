@@ -5,6 +5,7 @@ import MonthlyCalendar from './components/MonthlyCalendar';
 import Footer from './components/Footer';
 import ActionPanel from './components/ActionPanel';
 import SubscriptionDialog from './components/SubscriptionDialog';
+import SubscriptionList, { type SubscriptionListItem } from './components/SubscriptionList';
 import { ApiAdapter } from './services/apiAdapter';
 import { SettingsAdapter } from './services/settingsAdapter';
 import type { Subscription as ServerSubscription } from '../server/types';
@@ -28,7 +29,8 @@ function App() {
   const [subscriptions, setSubscriptions] = useState<ServerSubscription[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [settingsError, setSettingsError] = useState<string | null>(null);
-  const [, setDatePreview] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [listOpen, setListOpen] = useState(false);
   const api = useMemo(() => new ApiAdapter(), []);
   const settingsApi = useMemo(() => new SettingsAdapter(), []);
 
@@ -79,8 +81,8 @@ function App() {
     setViewDate((prev) => prev.year(year));
   };
   const handleSubscriptionDateClick = (isoDate: string) => {
-    setDatePreview(isoDate);
-    console.debug('Selected subscription date:', isoDate);
+    setSelectedDate(isoDate);
+    setListOpen(true);
   };
 
   // Monthly total for current view month and selected currency
@@ -94,6 +96,38 @@ function App() {
       .reduce((sum, s) => sum + (Number.isFinite(s.amount) ? s.amount : 0), 0);
     return `${total.toFixed(2)} ${selectedCurrency.symbol}`;
   }, [subscriptions, viewDate, selectedCurrency]);
+
+  const currencySymbolMap = useMemo(() => {
+    return currencies.reduce<Record<string, string>>((acc, curr) => {
+      acc[curr.code] = curr.symbol;
+      return acc;
+    }, {});
+  }, [currencies]);
+
+  const serviceNameMap = useMemo(() => {
+    return services.reduce<Record<string, string>>((acc, service) => {
+      acc[service.id] = service.name;
+      return acc;
+    }, {});
+  }, [services]);
+
+  const selectedDateItems: SubscriptionListItem[] = useMemo(() => {
+    if (!selectedDate) {
+      return [];
+    }
+
+    return subscriptions
+      .filter((sub) => sub.startDate === selectedDate)
+      .map((sub) => {
+        const name = serviceNameMap[sub.serviceId] ?? sub.serviceId;
+        const symbol = currencySymbolMap[sub.currency] ?? sub.currency;
+        return {
+          id: sub.id,
+          name,
+          amountText: `${sub.amount.toFixed(2)} ${symbol}`,
+        } satisfies SubscriptionListItem;
+      });
+  }, [selectedDate, subscriptions, serviceNameMap, currencySymbolMap]);
 
   return (
     <main className="min-h-dvh overflow-y-hidden bg-gradient-to-br from-[var(--bg-gradient-from)] via-[var(--bg-gradient-via)] to-[var(--bg-gradient-to)] flex flex-col">
@@ -169,6 +203,17 @@ function App() {
           }}
         />
       )}
+      <SubscriptionList
+        open={listOpen}
+        onClose={() => setListOpen(false)}
+        onEdit={() => {
+          if (selectedDate) {
+            console.debug('Edit subscriptions for date:', selectedDate);
+          }
+        }}
+        date={selectedDate ?? undefined}
+        items={selectedDateItems}
+      />
     </main>
   );
 }
