@@ -5,29 +5,43 @@ import MonthlyCalendar from './components/MonthlyCalendar';
 import Footer from './components/Footer';
 import ActionPanel from './components/ActionPanel';
 import SubscriptionDialog from './components/SubscriptionDialog';
-import currencies from './data/currencies.json';
 import { ApiAdapter } from './services/apiAdapter';
+import { SettingsAdapter } from './services/settingsAdapter';
 import type { Subscription as ServerSubscription } from '../server/types';
-
-type Currency = {
-  code: string;
-  name: string;
-  symbol: string;
-};
+import type { CurrencySetting, SubscriptionSetting } from './types/settings';
 
 function App() {
   const [viewDate, setViewDate] = useState(() => dayjs());
   const today = useMemo(() => dayjs(), []);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
-  const allCurrencies = currencies as Currency[];
-  const [selectedCurrency, setSelectedCurrency] = useState<Currency>(
-    () => allCurrencies.find((c) => c.code === 'EUR') || allCurrencies[0],
-  );
+  const [currencies, setCurrencies] = useState<CurrencySetting[]>([]);
+  const [services, setServices] = useState<SubscriptionSetting[]>([]);
+  const [selectedCurrency, setSelectedCurrency] = useState<CurrencySetting | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [markedDates, setMarkedDates] = useState<Set<string>>(new Set());
   const [subscriptions, setSubscriptions] = useState<ServerSubscription[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [settingsError, setSettingsError] = useState<string | null>(null);
   const api = useMemo(() => new ApiAdapter(), []);
+  const settingsApi = useMemo(() => new SettingsAdapter(), []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const [currencyList, subscriptionList] = await Promise.all([
+          settingsApi.getCurrencies(),
+          settingsApi.getSubscriptions(),
+        ]);
+        setCurrencies(currencyList);
+        setServices(subscriptionList);
+        setSettingsError(null);
+        const fallback = currencyList.find((c) => c.code === 'EUR') || currencyList[0] || null;
+        setSelectedCurrency((prev) => prev ?? fallback);
+      } catch {
+        setSettingsError('Failed to load settings. Please try refreshing the page later.');
+      }
+    })();
+  }, [settingsApi]);
 
   // Load existing subscriptions on first render and mark their dates
   useEffect(() => {
@@ -39,7 +53,7 @@ function App() {
         setMarkedDates(dates);
         setLoadError(null);
       } catch {
-        setLoadError('Subscriptions can not be loaded. Try o refresh the page');
+        setLoadError('Failed to load subscriptions. Please try refreshing the page later.');
       }
     })();
   }, [api]);
@@ -55,6 +69,7 @@ function App() {
 
   // Monthly total for current view month and selected currency
   const monthlyTotalText = useMemo(() => {
+    if (!selectedCurrency) return '0.00';
     const yearStr = viewDate.format('YYYY');
     const monthStr = viewDate.format('MM');
     const code = selectedCurrency.code;
@@ -66,6 +81,11 @@ function App() {
 
   return (
     <main className="min-h-dvh overflow-y-hidden bg-gradient-to-br from-[var(--bg-gradient-from)] via-[var(--bg-gradient-via)] to-[var(--bg-gradient-to)] flex flex-col">
+      {settingsError && (
+        <div className="bg-red-500/20 text-red-200 border border-red-500/40 px-4 py-2 text-center text-sm">
+          {settingsError}
+        </div>
+      )}
       {loadError && (
         <div className="bg-red-500/20 text-red-200 border border-red-500/40 px-4 py-2 text-center text-sm">
           {loadError}
@@ -87,44 +107,51 @@ function App() {
               className="flex-1"
               onGridHeightChange={setCalendarHeight}
               onSelectYear={handleSelectYear}
-              currencySymbol={selectedCurrency.symbol}
+              currencySymbol={selectedCurrency?.symbol ?? ''}
               markedDates={markedDates}
               monthlyTotalText={monthlyTotalText}
             />
           </div>
-          <ActionPanel
-            selected={selectedCurrency}
-            onChange={setSelectedCurrency}
-            onNewSub={() => setDialogOpen(true)}
-          />
+          {selectedCurrency && (
+            <ActionPanel
+              selected={selectedCurrency}
+              currencies={currencies}
+              onChange={setSelectedCurrency}
+              onNewSub={() => setDialogOpen(true)}
+            />
+          )}
         </div>
       </div>
       <Footer />
-      <SubscriptionDialog
-        open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
-        currency={selectedCurrency}
-        onSave={async (payload: { serviceId: string; startDate: string; amount: number; currency: string }) => {
-          try {
-            const body: Omit<ServerSubscription, 'id'> = {
-              userId: 'default',
-              serviceId: payload.serviceId,
-              startDate: payload.startDate,
-              amount: payload.amount,
-              currency: payload.currency,
-            };
-            const created = await api.add(body);
-            setSubscriptions((prev) => [...prev, created]);
-            // Mark the selected date locally
-            setMarkedDates((prev) => new Set(prev).add(payload.startDate));
-            setDialogOpen(false);
-          } catch (e) {
-            // For now, just close; later we can show a toast
-            setDialogOpen(false);
-            // console.error('Failed to save subscription', e);
-          }
-        }}
-      />
+      {selectedCurrency && (
+        <SubscriptionDialog
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          currency={selectedCurrency}
+          currencies={currencies}
+          subscriptions={services}
+          onSave={async (payload: { serviceId: string; startDate: string; amount: number; currency: string }) => {
+            try {
+              const body: Omit<ServerSubscription, 'id'> = {
+                userId: 'default',
+                serviceId: payload.serviceId,
+                startDate: payload.startDate,
+                amount: payload.amount,
+                currency: payload.currency,
+              };
+              const created = await api.add(body);
+              setSubscriptions((prev) => [...prev, created]);
+              // Mark the selected date locally
+              setMarkedDates((prev) => new Set(prev).add(payload.startDate));
+              setDialogOpen(false);
+            } catch (e) {
+              // For now, just close; later we can show a toast
+              setDialogOpen(false);
+              // console.error('Failed to save subscription', e);
+            }
+          }}
+        />
+      )}
     </main>
   );
 }

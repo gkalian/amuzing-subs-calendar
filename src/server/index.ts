@@ -1,5 +1,6 @@
 import express from 'express';
 import { subscriptionsRouter } from './routes/subscriptions.js';
+import { settingsRouter } from './routes/settings.js';
 import { registerRequestLogger } from './middleware/requestLogger.js';
 
 const app = express();
@@ -22,6 +23,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/api/subscriptions', subscriptionsRouter);
+app.use('/api/settings', settingsRouter);
 
 // Health check
 app.get('/health', (req, res) => {

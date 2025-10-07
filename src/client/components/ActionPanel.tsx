@@ -1,20 +1,14 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import currencies from '../data/currencies.json';
-
-type Currency = {
-  code: string;
-  name: string;
-  symbol: string;
-};
+import type { CurrencySetting } from '../types/settings';
 
 type ActionPanelProps = {
-  selected: Currency;
-  onChange: (c: Currency) => void;
+  selected: CurrencySetting;
+  currencies: CurrencySetting[];
+  onChange: (c: CurrencySetting) => void;
   onNewSub?: () => void;
 };
 
-function ActionPanel({ selected, onChange, onNewSub }: ActionPanelProps) {
-  const allCurrencies = currencies as Currency[];
+function ActionPanel({ selected, currencies, onChange, onNewSub }: ActionPanelProps) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -49,7 +43,7 @@ function ActionPanel({ selected, onChange, onNewSub }: ActionPanelProps) {
             aria-label="Select currency"
             className="absolute right-0 mt-2 max-h-64 w-56 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
           >
-            {allCurrencies.map((c) => {
+            {currencies.map((c) => {
               const isActive = c.code === selected.code;
               return (
                 <button

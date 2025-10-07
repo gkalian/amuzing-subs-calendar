@@ -1,23 +1,13 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker from './DatePicker';
-import currencies from '../data/currencies.json';
-import subscriptions from '../data/subscriptions.json';
-
-export type Currency = {
-  code: string;
-  name: string;
-  symbol: string;
-};
-
-type Subscription = {
-  id: string;
-  name: string;
-};
+import type { CurrencySetting, SubscriptionSetting } from '../types/settings';
 
 type SubscriptionDialogProps = {
   open: boolean;
   onClose: () => void;
-  currency: Currency; // initial currency (from App)
+  currency: CurrencySetting; // initial currency (from App)
+  currencies: CurrencySetting[];
+  subscriptions: SubscriptionSetting[];
   onSave?: (payload: {
     serviceId: string;
     startDate: string; // YYYY-MM-DD
@@ -27,13 +17,18 @@ type SubscriptionDialogProps = {
   }) => void | Promise<void>;
 };
 
-function SubscriptionDialog({ open, onClose, currency, onSave }: SubscriptionDialogProps) {
-  const allCurrencies = currencies as Currency[];
-  const allSubscriptions = subscriptions as Subscription[];
-
+function SubscriptionDialog({
+  open,
+  onClose,
+  currency,
+  currencies,
+  subscriptions,
+  onSave,
+}: SubscriptionDialogProps) {
+  
   // Always use current date when dialog is opened
   const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
-  
+
   // Reset date to current date when dialog is opened
   useEffect(() => {
     if (open) {
@@ -43,7 +38,7 @@ function SubscriptionDialog({ open, onClose, currency, onSave }: SubscriptionDia
   const [selectedSub, setSelectedSub] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.00');
-  const [curr, setCurr] = useState<Currency>(currency);
+  const [curr, setCurr] = useState<CurrencySetting>(currency);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const subMenuRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
@@ -82,17 +77,11 @@ function SubscriptionDialog({ open, onClose, currency, onSave }: SubscriptionDia
     return () => document.removeEventListener('mousedown', handler);
   }, [open, onClose]);
 
-  const symbolsByCode = useMemo(() => {
-    const map = new Map<string, string>();
-    allCurrencies.forEach((c) => map.set(c.code, c.symbol));
-    return map;
-  }, [allCurrencies]);
-
   const filteredSubscriptions = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return allSubscriptions;
-    return allSubscriptions.filter((s) => s.name.toLowerCase().includes(q));
-  }, [allSubscriptions, query]);
+    if (!q) return subscriptions;
+    return subscriptions.filter((s) => s.name.toLowerCase().includes(q));
+  }, [subscriptions, query]);
 
   // Close service dropdown on outside click
   useEffect(() => {
@@ -184,7 +173,7 @@ function SubscriptionDialog({ open, onClose, currency, onSave }: SubscriptionDia
             >
               <span>
                 {selectedSub
-                  ? allSubscriptions.find((s) => s.id === selectedSub)?.name || 'Select a service'
+                  ? subscriptions.find((s) => s.id === selectedSub)?.name || 'Select a service'
                   : 'Select a service'}
               </span>
               <span className="opacity-60">▾</span>
@@ -294,12 +283,12 @@ function SubscriptionDialog({ open, onClose, currency, onSave }: SubscriptionDia
                 <select
                   value={curr.code}
                   onChange={(e) => {
-                    const c = allCurrencies.find((x) => x.code === e.target.value) || curr;
+                    const c = currencies.find((x) => x.code === e.target.value) || curr;
                     setCurr(c);
                   }}
                   className="input"
                 >
-                  {allCurrencies.map((c) => (
+                  {currencies.map((c) => (
                     <option key={c.code} value={c.code}>
                       {c.symbol} {c.name}
                     </option>
