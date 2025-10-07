@@ -72,12 +72,15 @@ function MonthlyCalendar({
   const activeYearBtnRef = useRef<HTMLButtonElement | null>(null);
   const [yearOpen, setYearOpen] = useState(false);
   const years = useMemo(() => {
+    const baseYear = today.year();
+    const startYear = baseYear - 15;
+    const endYear = baseYear + 10;
     const range: number[] = [];
-    for (let y = 2005; y <= 2040; y++) {
+    for (let y = startYear; y <= endYear; y++) {
       range.push(y);
     }
     return range;
-  }, []);
+  }, [today]);
 
   useEffect(() => {
     if (!onGridHeightChange) {
