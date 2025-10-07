@@ -10,6 +10,12 @@ import { SettingsAdapter } from './services/settingsAdapter';
 import type { Subscription as ServerSubscription } from '../server/types';
 import type { CurrencySetting, SubscriptionSetting } from './types/settings';
 
+const DEFAULT_CURRENCY: CurrencySetting = {
+  code: 'EUR',
+  name: 'Euro',
+  symbol: '€',
+};
+
 function App() {
   const [viewDate, setViewDate] = useState(() => dayjs());
   const today = useMemo(() => dayjs(), []);
@@ -32,13 +38,18 @@ function App() {
           settingsApi.getCurrencies(),
           settingsApi.getSubscriptions(),
         ]);
-        setCurrencies(currencyList);
+        const normalizedCurrencies =
+          currencyList.length > 0 ? currencyList : [DEFAULT_CURRENCY];
+        setCurrencies(normalizedCurrencies);
         setServices(subscriptionList);
         setSettingsError(null);
-        const fallback = currencyList.find((c) => c.code === 'EUR') || currencyList[0] || null;
-        setSelectedCurrency((prev) => prev ?? fallback);
+        const fallback =
+          normalizedCurrencies.find((c) => c.code === 'EUR') || normalizedCurrencies[0];
+        setSelectedCurrency(fallback);
       } catch {
         setSettingsError('Failed to load settings. Please try refreshing the page later.');
+        setCurrencies([DEFAULT_CURRENCY]);
+        setSelectedCurrency(DEFAULT_CURRENCY);
       }
     })();
   }, [settingsApi]);
