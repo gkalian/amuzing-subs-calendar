@@ -1,13 +1,15 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import DatePicker from './DatePicker';
-import type { CurrencySetting, SubscriptionSetting } from '../types/settings';
+
+type Currency = { code: string; name: string; symbol: string };
+type Service = { id: string; name: string };
 
 type SubscriptionDialogProps = {
   open: boolean;
   onClose: () => void;
-  currency: CurrencySetting; // initial currency (from App)
-  currencies: CurrencySetting[];
-  subscriptions: SubscriptionSetting[];
+  currency: Currency; // initial currency (from App)
+  currencies: Currency[];
+  subscriptions: Service[];
   onSave?: (payload: {
     serviceId: string;
     startDate: string; // YYYY-MM-DD
@@ -38,7 +40,7 @@ function SubscriptionDialog({
   const [selectedSub, setSelectedSub] = useState<string>('');
   const [query, setQuery] = useState<string>('');
   const [amount, setAmount] = useState<string>('0.00');
-  const [curr, setCurr] = useState<CurrencySetting>(currency);
+  const [curr, setCurr] = useState<Currency>(currency);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const subMenuRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);

@@ -1,4 +1,11 @@
-import type { Subscription } from '../../server/types';
+export type Subscription = {
+  id: string;
+  userId: string;
+  serviceId: string;
+  startDate: string; // YYYY-MM-DD
+  amount: number;
+  currency: string;
+};
 
 export class ApiAdapter {
   private baseUrl = '/api/subscriptions';

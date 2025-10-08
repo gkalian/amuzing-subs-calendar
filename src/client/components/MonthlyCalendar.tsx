@@ -211,7 +211,7 @@ function MonthlyCalendar({
                       isCurrentMonth ? 'text-[var(--text)]' : 'text-[var(--text-muted)]/20'
                     } ${isWeekend && isCurrentMonth ? 'bg-[var(--surface)]' : ''} ${
                       isToday ? 'bg-[var(--today-bg)]' : ''
-                    } ${isClickable ? 'cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]' : ''}`}
+                    } ${isClickable ? 'cursor-pointer focus-visible:outline-2 focus-visible:outline-[var(--accent)]' : ''}`}
                     role={isClickable ? 'button' : undefined}
                     tabIndex={isClickable ? 0 : undefined}
                     aria-label={

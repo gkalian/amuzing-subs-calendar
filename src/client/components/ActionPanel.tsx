@@ -1,10 +1,11 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import type { CurrencySetting } from '../types/settings';
+
+type Currency = { code: string; name: string; symbol: string };
 
 type ActionPanelProps = {
-  selected: CurrencySetting;
-  currencies: CurrencySetting[];
-  onChange: (c: CurrencySetting) => void;
+  selected: Currency;
+  currencies: Currency[];
+  onChange: (c: Currency) => void;
   onNewSub?: () => void;
 };
 

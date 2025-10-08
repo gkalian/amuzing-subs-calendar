@@ -6,12 +6,15 @@ import Footer from './components/Footer';
 import ActionPanel from './components/ActionPanel';
 import SubscriptionDialog from './components/SubscriptionDialog';
 import SubscriptionList, { type SubscriptionListItem } from './components/SubscriptionList';
-import { ApiAdapter } from './services/apiAdapter';
-import { SettingsAdapter } from './services/settingsAdapter';
-import type { Subscription as ServerSubscription } from '../server/types';
-import type { CurrencySetting, SubscriptionSetting } from './types/settings';
+import { ApiAdapter, type Subscription as ClientSubscription } from './services/apiAdapter';
+import currenciesData from './data/currencies.json';
+import subscriptionsData from './data/subscriptions.json';
 
-const DEFAULT_CURRENCY: CurrencySetting = {
+// Local types matching JSON shapes
+type Currency = { code: string; name: string; symbol: string };
+type Service = { id: string; name: string };
+
+const DEFAULT_CURRENCY: Currency = {
   code: 'EUR',
   name: 'Euro',
   symbol: '€',
@@ -21,41 +24,31 @@ function App() {
   const [viewDate, setViewDate] = useState(() => dayjs());
   const today = useMemo(() => dayjs(), []);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
-  const [currencies, setCurrencies] = useState<CurrencySetting[]>([]);
-  const [services, setServices] = useState<SubscriptionSetting[]>([]);
-  const [selectedCurrency, setSelectedCurrency] = useState<CurrencySetting | null>(null);
+  const [currencies, setCurrencies] = useState<Currency[]>(
+    (currenciesData as Currency[])?.length > 0 ? (currenciesData as Currency[]) : [DEFAULT_CURRENCY],
+  );
+  const [services, setServices] = useState<Service[]>(subscriptionsData as Service[]);
+  const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
+    (() => {
+      const list = (currenciesData as Currency[])?.length > 0
+        ? (currenciesData as Currency[])
+        : [DEFAULT_CURRENCY];
+      return list.find((c) => c.code === 'EUR') || list[0] || null;
+    })(),
+  );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [markedDates, setMarkedDates] = useState<Set<string>>(new Set());
-  const [subscriptions, setSubscriptions] = useState<ServerSubscription[]>([]);
+  const [subscriptions, setSubscriptions] = useState<ClientSubscription[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [settingsError, setSettingsError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const api = useMemo(() => new ApiAdapter(), []);
-  const settingsApi = useMemo(() => new SettingsAdapter(), []);
-
+  // Settings (currencies and services) are loaded directly from JSON at build time
   useEffect(() => {
-    (async () => {
-      try {
-        const [currencyList, subscriptionList] = await Promise.all([
-          settingsApi.getCurrencies(),
-          settingsApi.getSubscriptions(),
-        ]);
-        const normalizedCurrencies =
-          currencyList.length > 0 ? currencyList : [DEFAULT_CURRENCY];
-        setCurrencies(normalizedCurrencies);
-        setServices(subscriptionList);
-        setSettingsError(null);
-        const fallback =
-          normalizedCurrencies.find((c) => c.code === 'EUR') || normalizedCurrencies[0];
-        setSelectedCurrency(fallback);
-      } catch {
-        setSettingsError('Failed to load settings. Please try refreshing the page later.');
-        setCurrencies([DEFAULT_CURRENCY]);
-        setSelectedCurrency(DEFAULT_CURRENCY);
-      }
-    })();
-  }, [settingsApi]);
+    // Marked dates will be filled after loading subscriptions
+    setCurrencies((prev) => (prev.length > 0 ? prev : [DEFAULT_CURRENCY]));
+    setServices((prev) => prev);
+  }, []);
 
   // Load existing subscriptions on first render and mark their dates
   useEffect(() => {
@@ -131,11 +124,6 @@ function App() {
 
   return (
     <main className="min-h-dvh overflow-y-hidden bg-gradient-to-br from-[var(--bg-gradient-from)] via-[var(--bg-gradient-via)] to-[var(--bg-gradient-to)] flex flex-col">
-      {settingsError && (
-        <div className="bg-red-500/20 text-red-200 border border-red-500/40 px-4 py-2 text-center text-sm">
-          {settingsError}
-        </div>
-      )}
       {loadError && (
         <div className="bg-red-500/20 text-red-200 border border-red-500/40 px-4 py-2 text-center text-sm">
           {loadError}
@@ -183,7 +171,7 @@ function App() {
           subscriptions={services}
           onSave={async (payload: { serviceId: string; startDate: string; amount: number; currency: string }) => {
             try {
-              const body: Omit<ServerSubscription, 'id'> = {
+              const body: Omit<ClientSubscription, 'id'> = {
                 userId: 'default',
                 serviceId: payload.serviceId,
                 startDate: payload.startDate,
