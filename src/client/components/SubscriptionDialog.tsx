@@ -35,10 +35,12 @@ function SubscriptionDialog({
   const [curr, setCurr] = useState<Currency>(currency);
   const modalRef = useRef<HTMLDivElement | null>(null);
   const subMenuRef = useRef<HTMLDivElement | null>(null);
+  const currMenuRef = useRef<HTMLDivElement | null>(null);
   const searchRef = useRef<HTMLInputElement | null>(null);
   const [subOpen, setSubOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
   const [suggestOpen, setSuggestOpen] = useState<boolean>(false);
+  const [currOpen, setCurrOpen] = useState<boolean>(false);
 
   // Reset date to current date when dialog is opened
   useEffect(() => {
@@ -65,18 +67,23 @@ function SubscriptionDialog({
     }
   }, [open]);
 
-  // Outside click to close dropdown
+  // Outside click to close dropdowns (services + currencies)
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (!subMenuRef.current) return;
-      if (!subMenuRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      const clickInServices = subMenuRef.current?.contains(target);
+      const clickInCurrencies = currMenuRef.current?.contains(target);
+      if (!clickInServices) {
         setSubOpen(false);
         setSuggestOpen(false);
+      }
+      if (!clickInCurrencies) {
+        setCurrOpen(false);
       }
     };
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
-  }, [subOpen]);
+  }, [subOpen, currOpen]);
 
   const filteredSubscriptions = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -301,21 +308,51 @@ function SubscriptionDialog({
                 onChange={(e) => setAmount(e.target.value)}
                 className="flex-1 input"
               />
-              <div className="relative">
-                <select
-                  value={curr.code}
-                  onChange={(e) => {
-                    const c = currencies.find((x) => x.code === e.target.value) || curr;
-                    setCurr(c);
-                  }}
-                  className="input"
+              <div className="relative" ref={currMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setCurrOpen((v) => !v)}
+                  className="input flex items-center gap-2"
+                  aria-haspopup="listbox"
+                  aria-expanded={currOpen}
+                  aria-controls="currency-menu-dialog"
                 >
-                  {currencies.map((c) => (
-                    <option key={c.code} value={c.code}>
-                      {c.symbol} {c.name}
-                    </option>
-                  ))}
-                </select>
+                  <span className="text-base">{curr.symbol}</span>
+                  <span className="text-xs text-[var(--text-muted)]">{curr.name}</span>
+                  <span className="ml-auto opacity-60">▾</span>
+                </button>
+                {currOpen && (
+                  <div
+                    id="currency-menu-dialog"
+                    role="listbox"
+                    aria-label="Select currency"
+                    className="absolute right-0 mt-2 max-h-64 w-56 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
+                  >
+                    {currencies.map((c) => {
+                      const isActive = c.code === curr.code;
+                      return (
+                        <button
+                          key={c.code}
+                          type="button"
+                          role="option"
+                          aria-selected={isActive}
+                          className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
+                            isActive
+                              ? 'bg-[var(--active)] text-[var(--text)]'
+                              : 'text-[var(--text)] hover:bg-[var(--hover)]'
+                          }`}
+                          onClick={() => {
+                            setCurr(c);
+                            setCurrOpen(false);
+                          }}
+                        >
+                          <span className="text-lg">{c.symbol}</span>
+                          <span className="text-[var(--text-muted)] text-sm">{c.name}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </div>
           </label>
