@@ -1,3 +1,16 @@
+# [1.3.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.2.0...v1.3.0) (2025-10-08)
+
+
+### Bug Fixes
+
+* correct style in currencies ([fb8f693](https://github.com/gkalian/amuzing-subs-calendar/commit/fb8f693dfba9ed5f0833a9c9875655c12a88d103))
+
+
+### Features
+
+* bring back data to client side ([0b29c5d](https://github.com/gkalian/amuzing-subs-calendar/commit/0b29c5d8e02694f6be714aa0024821f87b764459))
+* extend subs dialog with search and custom sub ([4dd6b7d](https://github.com/gkalian/amuzing-subs-calendar/commit/4dd6b7db8191311fedb9c800518f06ea7e32fa24))
+
 # [1.2.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.1.0...v1.2.0) (2025-10-07)
 
 
