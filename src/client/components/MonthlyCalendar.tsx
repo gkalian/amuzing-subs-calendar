@@ -143,6 +143,11 @@ function MonthlyCalendar({
         </div>
         {/* Right-side summary */}
         <div className="text-2xl font-semibold text-[var(--text)]">
+          {monthlyTotalText ? (
+            <div className="flex items-center gap-2">
+              <span aria-label={`Monthly total`}>{monthlyTotalText}</span>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -160,7 +165,7 @@ function MonthlyCalendar({
 
         <div className="grid grid-cols-7 gap-px bg-[var(--border)] text-xs">
           {weeks.map((week) => (
-            <div key={week[0].toISOString()} className="contents">
+            <div key={week[0].format('YYYY-MM-DD')} className="contents">
               {week.map((date) => {
                 const isCurrentMonth = date.month() === viewDate.month();
                 const isToday = date.isSame(today, 'day');
@@ -171,7 +176,7 @@ function MonthlyCalendar({
 
                 return (
                   <div
-                    key={date.toISOString()}
+                    key={date.format('YYYY-MM-DD')}
                     className={`relative flex min-h-[54px] flex-col bg-[var(--surface)] px-3 py-2 transition-colors ${
                       isCurrentMonth ? 'text-[var(--text)]' : 'text-[var(--text-muted)]/20'
                     } ${isWeekend && isCurrentMonth ? 'bg-[var(--surface)]' : ''} ${
