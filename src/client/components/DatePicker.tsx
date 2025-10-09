@@ -3,6 +3,7 @@ import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/style.css';
 import dayjs from 'dayjs';
 import useOutsideClick from '../hooks/useOutsideClick';
+import Button from './forms/Button';
 
 export type DatePickerProps = {
   value: string; // YYYY-MM-DD
@@ -23,16 +24,17 @@ export default function DatePicker({ value, onChange, label = 'Start date' }: Da
   return (
     <label className="flex flex-col gap-1 text-sm relative">
       <span className="text-[var(--text-muted)]">{label}</span>
-      <button
+      <Button
         type="button"
+        variant="ghost"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 py-2 text-left text-[var(--text)] outline-none hover:bg-[var(--hover)] focus:ring-1 focus:ring-[var(--ring)]"
+        className="inline-flex h-10 items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 text-left text-[var(--text)] outline-none hover:bg-[var(--hover)] focus:ring-1 focus:ring-[var(--ring)]"
         aria-haspopup="dialog"
         aria-expanded={open}
       >
         <span>{selected ? dayjs(selected).format('D MMM YYYY') : 'Select date'}</span>
         <span className="opacity-70">▾</span>
-      </button>
+      </Button>
       {open && (
         <div
           ref={popoverRef}

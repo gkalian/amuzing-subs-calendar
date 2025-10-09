@@ -1,4 +1,5 @@
 import { memo } from 'react';
+import Button from './forms/Button';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -21,17 +22,19 @@ function MonthList({ activeMonth, onSelectMonth, className, calendarHeight }: Mo
           const isActive = index === activeMonth;
 
           return (
-            <button
+            <Button
               key={month}
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => onSelectMonth(index)}
-              className={`flex w-10 items-center justify-center text-[11px] font-semibold uppercase tracking-[0.28em] transition ${
+              className={`w-10 text-[11px] font-semibold uppercase tracking-[0.28em] transition ${
                 isActive ? 'text-[var(--text)]' : 'text-slate-400 hover:text-[var(--text)]'
               }`}
               style={{ height: `${rowHeight}px` }}
             >
               {month}
-            </button>
+            </Button>
           );
         })}
       </div>

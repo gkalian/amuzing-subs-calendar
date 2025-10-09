@@ -1,4 +1,7 @@
 import { memo, useEffect, useRef, useState } from 'react';
+import Dropdown from './forms/Dropdown';
+import Listbox, { type ListboxOption } from './forms/Listbox';
+import Button from './forms/Button';
 
 type Currency = { code: string; name: string; symbol: string };
 
@@ -24,56 +27,50 @@ function ActionPanel({ selected, currencies, onChange, onNewSub }: ActionPanelPr
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [open]);
 
+  const options: ListboxOption<Currency>[] = currencies.map((c) => ({
+    id: c.code,
+    label: `${c.symbol} ${c.name}`,
+    value: c,
+  }));
+
   return (
     <div className="flex items-center justify-end">
       <div className="relative" ref={menuRef}>
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          className="btn"
-          aria-haspopup="listbox"
-          aria-expanded={open}
-          aria-controls="currency-menu"
+        <Dropdown
+          open={open}
+          onOpenChange={setOpen}
+          align="right"
+          anchor={
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              aria-haspopup="listbox"
+              aria-expanded={open}
+              aria-controls="currency-menu"
+              className="px-2 h-8"
+            >
+              <span className="text-sm align-middle">{selected.symbol}</span>
+            </Button>
+          }
         >
-          <span className="text-sm align-middle">{selected.symbol}</span>
-        </button>
-        {open && (
-          <div
-            id="currency-menu"
-            role="listbox"
-            aria-label="Select currency"
-            className="absolute right-0 mt-2 max-h-64 w-56 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
-          >
-            {currencies.map((c) => {
-              const isActive = c.code === selected.code;
-              return (
-                <button
-                  key={c.code}
-                  type="button"
-                  role="option"
-                  aria-selected={isActive}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
-                    isActive
-                      ? 'bg-[var(--active)] text-[var(--text)]'
-                      : 'text-[var(--text)] hover:bg-[var(--hover)]'
-                  }`}
-                  onClick={() => {
-                    onChange(c);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="text-lg">{c.symbol}</span>
-                  <span className="text-[var(--text-muted)] text-sm">{c.name}</span>
-                </button>
-              );
-            })}
+          <div id="currency-menu" aria-label="Select currency">
+            <Listbox
+              options={options}
+              activeIndex={-1}
+              selectedId={selected.code}
+              onSelect={(opt) => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+            />
           </div>
-        )}
+        </Dropdown>
       </div>
 
-      <button type="button" onClick={onNewSub} className="ml-3 btn">
+      <Button type="button" onClick={onNewSub} className="ml-3">
         New sub
-      </button>
+      </Button>
     </div>
   );
 }

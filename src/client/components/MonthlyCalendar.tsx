@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import Button from './forms/Button';
 import { Dayjs } from 'dayjs';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -53,8 +54,6 @@ type MonthlyCalendarProps = {
 function MonthlyCalendar({
   viewDate,
   today,
-  onPrevMonth,
-  onNextMonth,
   className,
   onGridHeightChange,
   onSelectYear,
@@ -138,13 +137,15 @@ function MonthlyCalendar({
         <div className="relative" ref={yearRef}>
           <h1 className="text-2xl font-semibold text-[var(--text)]">
             {monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}{' '}
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="sm"
               onClick={() => setYearOpen((v) => !v)}
-              className="align-baseline text-[var(--text-muted)] hover:text-[var(--text)] focus:outline-none"
+              className="align-baseline text-2xl font-semibold text-[var(--text-muted)] hover:text-[var(--text)] focus:outline-none px-1 py-0 h-auto"
             >
               {yearLabel}
-            </button>
+            </Button>
           </h1>
           {yearOpen && (
             <div
@@ -154,9 +155,11 @@ function MonthlyCalendar({
               {years.map((y) => {
                 const isActive = y === viewDate.year();
                 return (
-                  <button
+                  <Button
                     key={y}
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                       isActive
                         ? 'bg-[var(--active)] text-[var(--text)]'
@@ -169,7 +172,7 @@ function MonthlyCalendar({
                   >
                     <span>{y}</span>
                     {isActive && <span className="text-[var(--text-muted)]">•</span>}
-                  </button>
+                  </Button>
                 );
               })}
             </div>

@@ -25,14 +25,17 @@ function App() {
   const today = useMemo(() => dayjs(), []);
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const [currencies, setCurrencies] = useState<Currency[]>(
-    (currenciesData as Currency[])?.length > 0 ? (currenciesData as Currency[]) : [DEFAULT_CURRENCY],
+    (currenciesData as Currency[])?.length > 0
+      ? (currenciesData as Currency[])
+      : [DEFAULT_CURRENCY],
   );
   const [services, setServices] = useState<Service[]>(subscriptionsData as Service[]);
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
     (() => {
-      const list = (currenciesData as Currency[])?.length > 0
-        ? (currenciesData as Currency[])
-        : [DEFAULT_CURRENCY];
+      const list =
+        (currenciesData as Currency[])?.length > 0
+          ? (currenciesData as Currency[])
+          : [DEFAULT_CURRENCY];
       return list.find((c) => c.code === 'EUR') || list[0] || null;
     })(),
   );
@@ -169,7 +172,12 @@ function App() {
           currency={selectedCurrency}
           currencies={currencies}
           subscriptions={services}
-          onSave={async (payload: { serviceId: string; startDate: string; amount: number; currency: string }) => {
+          onSave={async (payload: {
+            serviceId: string;
+            startDate: string;
+            amount: number;
+            currency: string;
+          }) => {
             try {
               const body: Omit<ClientSubscription, 'id'> = {
                 userId: 'default',
