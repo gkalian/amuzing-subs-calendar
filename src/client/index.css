@@ -13,7 +13,6 @@
 
     --surface: rgba(46, 52, 64, 0.92); /* nord0 with alpha */
     --surface-2: rgba(67, 76, 94, 0.35); /* nord2 with alpha */
-    --weekday-bg: rgba(36, 41, 51, 0.92); /* slightly darker than --surface */
     --overlay: rgba(46, 52, 64, 0.75); /* dark overlay */
     --border: rgba(236, 239, 244, 0.14); /* nord6 as subtle border */
 
@@ -31,7 +30,7 @@
     --accent-via: rgba(136, 192, 208, 0.4); /* nord8 */
     --accent-to: rgba(94, 129, 172, 0.4); /* nord10 */
     /* Solid background for current day cell */
-    --today-bg: rgba(136, 192, 208, 0.24); /* nord8 with alpha */
+    --today-bg: rgba(24, 24, 24, 0.16); /* nord8 with lower alpha (darker) */
   }
 
   body {

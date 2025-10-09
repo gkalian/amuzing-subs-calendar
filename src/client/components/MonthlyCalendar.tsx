@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Button from './forms/Button';
+import Dropdown from './forms/Dropdown';
+import Listbox, { type ListboxOption } from './forms/Listbox';
 import { Dayjs } from 'dayjs';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -68,9 +70,6 @@ function MonthlyCalendar({
   const baseClass = 'flex w-full flex-1 flex-col gap-2';
   const containerClass = [baseClass, className].filter(Boolean).join(' ');
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const yearRef = useRef<HTMLDivElement | null>(null);
-  const dropdownRef = useRef<HTMLDivElement | null>(null);
-  const activeYearBtnRef = useRef<HTMLButtonElement | null>(null);
   const [yearOpen, setYearOpen] = useState(false);
   const years = useMemo(() => {
     const baseYear = today.year();
@@ -102,79 +101,41 @@ function MonthlyCalendar({
     };
   }, [onGridHeightChange, weeks]);
 
-  useEffect(() => {
-    const onDocClick = (e: MouseEvent) => {
-      if (!yearRef.current) return;
-      if (!yearRef.current.contains(e.target as Node)) {
-        setYearOpen(false);
-      }
-    };
-    if (yearOpen) {
-      document.addEventListener('mousedown', onDocClick);
-    }
-    return () => {
-      document.removeEventListener('mousedown', onDocClick);
-    };
-  }, [yearOpen]);
-
-  // When dropdown opens, scroll to the active year (without visual focus)
-  useEffect(() => {
-    if (yearOpen) {
-      // Delay to ensure elements are in the DOM
-      setTimeout(() => {
-        if (activeYearBtnRef.current) {
-          activeYearBtnRef.current.scrollIntoView({ block: 'nearest' });
-        } else if (dropdownRef.current) {
-          dropdownRef.current.scrollTop = 0;
-        }
-      }, 0);
-    }
-  }, [yearOpen]);
+  // No custom outside click or scroll logic; handled by shared Dropdown/Listbox
 
   return (
     <div className={containerClass}>
       <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative" ref={yearRef}>
+        <div className="relative">
           <h1 className="text-2xl font-semibold text-[var(--text)]">
             {monthLabel.charAt(0).toUpperCase() + monthLabel.slice(1)}{' '}
-            <Button
-              type="button"
-              variant="ghost"
-              size="lg"
-              onClick={() => setYearOpen((v) => !v)}
-              className="align-baseline !text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none !px-1 !bg-transparent !border-0"
+            <Dropdown
+              open={yearOpen}
+              onOpenChange={setYearOpen}
+              align="right"
+              className="w-28"
+              anchor={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="lg"
+                  className="align-baseline !text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none !px-1 !bg-transparent !border-0"
+                >
+                  {yearLabel}
+                </Button>
+              }
             >
-              {yearLabel}
-            </Button>
+              <Listbox
+                options={years.map<ListboxOption<number>>((y) => ({ id: String(y), label: String(y), value: y }))}
+                activeIndex={-1}
+                selectedId={String(viewDate.year())}
+                onSelect={(opt) => {
+                  onSelectYear?.(opt.value);
+                  setYearOpen(false);
+                }}
+              />
+            </Dropdown>
           </h1>
-          {yearOpen && (
-            <div
-              ref={dropdownRef}
-              className="absolute right-0 mt-2 max-h-64 w-28 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
-            >
-              {years.map((y) => {
-                const isActive = y === viewDate.year();
-                return (
-                  <button
-                    key={y}
-                    type="button"
-                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
-                      isActive
-                        ? 'bg-[var(--active)] text-[var(--text)]'
-                        : 'text-[var(--text)] hover:bg-[var(--hover)]'
-                    }`}
-                    onClick={() => {
-                      onSelectYear?.(y);
-                      setYearOpen(false);
-                    }}
-                  >
-                    <span>{y}</span>
-                    {isActive && <span className="text-[var(--text-muted)]">•</span>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
         </div>
         {/* Right-side summary */}
         <div className="text-2xl font-semibold text-[var(--text)]">
@@ -184,17 +145,17 @@ function MonthlyCalendar({
 
       <div
         ref={gridRef}
-        className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface-2)]"
+        className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--surface)]"
       >
-        <div className="grid grid-cols-7 gap-px bg-[var(--hover)] text-[9px] uppercase tracking-[0.24em] text-[var(--text-muted)] border-b border-[var(--surface-2)]">
+        <div className="grid grid-cols-7 gap-px bg-[var(--border)] text-[9px] uppercase tracking-[0.24em] text-[var(--text)] border-b border-[var(--border)]">
           {WEEKDAY_LABELS.map((label) => (
-            <div key={label} className="bg-[var(--weekday-bg)] px-3 py-2 text-center">
+            <div key={label} className="bg-[var(--surface)] px-3 py-2 text-center">
               {label}
             </div>
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-px bg-[var(--surface-2)] text-xs">
+        <div className="grid grid-cols-7 gap-px bg-[var(--border)] text-xs">
           {weeks.map((week) => (
             <div key={week[0].toISOString()} className="contents">
               {week.map((date) => {

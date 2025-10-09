@@ -47,7 +47,7 @@ function ActionPanel({ selected, currencies, onChange, onNewSub }: ActionPanelPr
               aria-haspopup="listbox"
               aria-expanded={open}
               aria-controls="currency-menu"
-              className="bg-white/[0.04]"
+              className="bg-[var(--surface)]"
             >
               <span className="text-sm align-middle">{selected.symbol}</span>
             </Button>
@@ -67,7 +67,7 @@ function ActionPanel({ selected, currencies, onChange, onNewSub }: ActionPanelPr
         </Dropdown>
       </div>
 
-      <Button type="button" size="md" onClick={onNewSub} className="ml-3 bg-white/[0.04]">
+      <Button type="button" size="md" onClick={onNewSub} className="ml-3 bg-[var(--surface)]">
         New sub
       </Button>
     </div>
