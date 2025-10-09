@@ -1,3 +1,19 @@
+# [1.4.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.3.0...v1.4.0) (2025-10-09)
+
+
+### Bug Fixes
+
+* prettier write ([efd6db2](https://github.com/gkalian/amuzing-subs-calendar/commit/efd6db26bfb0eaad0d95b0a8272ea1c08d1f70c2))
+* styling changes ([2c8623a](https://github.com/gkalian/amuzing-subs-calendar/commit/2c8623a702943dfb3b7b33272bfc1efa11f6790b))
+* styling different components ([b2582a2](https://github.com/gkalian/amuzing-subs-calendar/commit/b2582a244c165b681778ec4c663b6b13172c492c))
+* styling different components ([1649d40](https://github.com/gkalian/amuzing-subs-calendar/commit/1649d40430d4e1fd589e46178babd20331ed28ad))
+* update readme, minor styling ([996a82b](https://github.com/gkalian/amuzing-subs-calendar/commit/996a82b33f59b21f713b8af9dcfd737c5c315ee8))
+
+
+### Features
+
+* create basic forms to simplify ui components ([3d6f027](https://github.com/gkalian/amuzing-subs-calendar/commit/3d6f0275ef282664b0554cc7c78975482d8a5632))
+
 # [1.3.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.2.0...v1.3.0) (2025-10-08)
 
 ### Bug Fixes
