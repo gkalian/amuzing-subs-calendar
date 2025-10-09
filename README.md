@@ -10,4 +10,3 @@ Work in progress
 
 - Show monthly calendar with marked subscription dates
 - Add / Edit / Delete subscription (in progress)
-

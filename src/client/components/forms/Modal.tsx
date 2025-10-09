@@ -10,7 +10,14 @@ export type ModalProps = {
   zIndexBase?: number; // base z-index for overlay (content will be base+1)
 };
 
-export default function Modal({ open, onClose, children, className, title, zIndexBase = 60 }: ModalProps) {
+export default function Modal({
+  open,
+  onClose,
+  children,
+  className,
+  title,
+  zIndexBase = 60,
+}: ModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {

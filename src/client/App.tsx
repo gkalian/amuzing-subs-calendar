@@ -161,7 +161,11 @@ function App() {
               selected={selectedCurrency}
               currencies={currencies}
               onChange={setSelectedCurrency}
-              onNewSub={() => { setDialogMode('create'); setEditingId(null); setDialogOpen(true); }}
+              onNewSub={() => {
+                setDialogMode('create');
+                setEditingId(null);
+                setDialogOpen(true);
+              }}
             />
           )}
         </div>
@@ -175,7 +179,22 @@ function App() {
           currencies={currencies}
           subscriptions={services}
           mode={dialogMode}
-          initial={editingId ? (() => { const s = subscriptions.find(x => x.id === editingId); return s ? { id: s.id, serviceId: s.serviceId, startDate: s.startDate, amount: s.amount, currency: s.currency } : undefined; })() : undefined}
+          initial={
+            editingId
+              ? (() => {
+                  const s = subscriptions.find((x) => x.id === editingId);
+                  return s
+                    ? {
+                        id: s.id,
+                        serviceId: s.serviceId,
+                        startDate: s.startDate,
+                        amount: s.amount,
+                        currency: s.currency,
+                      }
+                    : undefined;
+                })()
+              : undefined
+          }
           onDelete={async (id: string) => {
             try {
               await api.delete(id);
@@ -191,7 +210,13 @@ function App() {
               setDialogOpen(false);
             }
           }}
-          onSave={async (payload: { id?: string; serviceId: string; startDate: string; amount: number; currency: string }) => {
+          onSave={async (payload: {
+            id?: string;
+            serviceId: string;
+            startDate: string;
+            amount: number;
+            currency: string;
+          }) => {
             try {
               if (dialogMode === 'edit' && payload.id) {
                 const updated = await api.update(payload.id, {

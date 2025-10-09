@@ -126,7 +126,11 @@ function MonthlyCalendar({
               }
             >
               <Listbox
-                options={years.map<ListboxOption<number>>((y) => ({ id: String(y), label: String(y), value: y }))}
+                options={years.map<ListboxOption<number>>((y) => ({
+                  id: String(y),
+                  label: String(y),
+                  value: y,
+                }))}
                 activeIndex={-1}
                 selectedId={String(viewDate.year())}
                 onSelect={(opt) => {

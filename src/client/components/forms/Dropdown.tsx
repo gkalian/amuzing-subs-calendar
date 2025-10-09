@@ -22,7 +22,9 @@ export default function Dropdown({
 
   return (
     <div className="relative inline-block align-baseline" ref={ref}>
-      <div className="inline-flex align-baseline" onClick={() => onOpenChange(!open)}>{anchor}</div>
+      <div className="inline-flex align-baseline" onClick={() => onOpenChange(!open)}>
+        {anchor}
+      </div>
       {open && (
         <div
           className={[

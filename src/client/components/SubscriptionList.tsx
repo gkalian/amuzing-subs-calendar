@@ -43,7 +43,9 @@ function SubscriptionList({ open, onClose, onEdit, date, items }: SubscriptionLi
                 <span className="text-lg" aria-hidden>
                   •
                 </span>
-                <span className="truncate" title={item.name}>{item.name}</span>
+                <span className="truncate" title={item.name}>
+                  {item.name}
+                </span>
               </div>
               <span className="text-sm font-medium shrink-0">{item.amountText}</span>
             </div>

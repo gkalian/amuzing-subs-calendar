@@ -13,7 +13,12 @@ export type ListboxProps<T = any> = {
   onSelect: (opt: ListboxOption<T>, index: number) => void;
 };
 
-export default function Listbox<T>({ options, activeIndex, selectedId, onSelect }: ListboxProps<T>) {
+export default function Listbox<T>({
+  options,
+  activeIndex,
+  selectedId,
+  onSelect,
+}: ListboxProps<T>) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {

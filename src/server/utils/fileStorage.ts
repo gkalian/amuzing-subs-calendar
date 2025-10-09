@@ -48,20 +48,22 @@ function getYearFromDate(dateStr: string): string {
 // Read all subscriptions (from all years)
 export async function readAllSubscriptions(): Promise<Subscription[]> {
   await ensureDataDir();
-  
+
   try {
     const files = await fs.readdir(DATA_DIR);
-    const subscriptionFiles = files.filter(file => file.startsWith('subscriptions_') && file.endsWith('.json'));
-    
+    const subscriptionFiles = files.filter(
+      (file) => file.startsWith('subscriptions_') && file.endsWith('.json'),
+    );
+
     let allSubscriptions: Subscription[] = [];
-    
+
     for (const file of subscriptionFiles) {
       const filePath = path.join(DATA_DIR, file);
       const content = await fs.readFile(filePath, 'utf-8');
       const { subscriptions } = JSON.parse(content);
       allSubscriptions = [...allSubscriptions, ...subscriptions];
     }
-    
+
     return allSubscriptions;
   } catch (error) {
     const nodeError = error as NodeJSError;
@@ -76,7 +78,7 @@ export async function readAllSubscriptions(): Promise<Subscription[]> {
 export async function readYearlySubscriptions(year: string | number): Promise<Subscription[]> {
   await ensureDataDir();
   const filePath = getYearlyFilePath(year);
-  
+
   try {
     const content = await fs.readFile(filePath, 'utf-8');
     const { subscriptions } = JSON.parse(content);
@@ -91,47 +93,55 @@ export async function readYearlySubscriptions(year: string | number): Promise<Su
 }
 
 // Save subscriptions for a specific year
-async function saveYearlySubscriptions(year: string | number, subscriptions: Subscription[]): Promise<void> {
+async function saveYearlySubscriptions(
+  year: string | number,
+  subscriptions: Subscription[],
+): Promise<void> {
   await ensureDataDir();
   const filePath = getYearlyFilePath(year);
   await fs.writeFile(filePath, JSON.stringify({ subscriptions }, null, 2), 'utf-8');
 }
 
 // Add a new subscription
-export async function addSubscription(subscription: Omit<Subscription, 'id'>): Promise<Subscription> {
+export async function addSubscription(
+  subscription: Omit<Subscription, 'id'>,
+): Promise<Subscription> {
   const year = getYearFromDate(subscription.startDate);
   const subscriptions = await readYearlySubscriptions(year);
-  
+
   const newSubscription: Subscription = {
     ...subscription,
     id: crypto.randomUUID(),
   };
-  
+
   subscriptions.push(newSubscription);
   await saveYearlySubscriptions(year, subscriptions);
-  
+
   return newSubscription;
 }
 
 // Update an existing subscription
-export async function updateSubscription(id: string, updates: Partial<Subscription>): Promise<Subscription | null> {
+export async function updateSubscription(
+  id: string,
+  updates: Partial<Subscription>,
+): Promise<Subscription | null> {
   const allSubscriptions = await readAllSubscriptions();
-  const index = allSubscriptions.findIndex(sub => sub.id === id);
-  
+  const index = allSubscriptions.findIndex((sub) => sub.id === id);
+
   if (index === -1) return null;
-  
+
   const updatedSubscription = { ...allSubscriptions[index], ...updates };
-  
+
   // If year changed, remove from old year and add to new year
   const oldYear = getYearFromDate(allSubscriptions[index].startDate);
   const newYear = getYearFromDate(updatedSubscription.startDate);
-  
+
   if (oldYear !== newYear) {
     // Remove from old year
     const oldYearSubs = await readYearlySubscriptions(oldYear);
-    const newOldYearSubs = oldYearSubs.filter(sub => sub.id !== id);
+    const newOldYearSubs = oldYearSubs.filter((sub) => sub.id !== id);
     await saveYearlySubscriptions(oldYear, newOldYearSubs);
-    
+
     // Add to new year
     const newYearSubs = await readYearlySubscriptions(newYear);
     newYearSubs.push(updatedSubscription);
@@ -139,27 +149,27 @@ export async function updateSubscription(id: string, updates: Partial<Subscripti
   } else {
     // Update in the same year
     const yearSubs = await readYearlySubscriptions(oldYear);
-    const subIndex = yearSubs.findIndex(sub => sub.id === id);
+    const subIndex = yearSubs.findIndex((sub) => sub.id === id);
     if (subIndex !== -1) {
       yearSubs[subIndex] = updatedSubscription;
       await saveYearlySubscriptions(oldYear, yearSubs);
     }
   }
-  
+
   return updatedSubscription;
 }
 
 // Delete a subscription
 export async function deleteSubscription(id: string): Promise<boolean> {
   const allSubscriptions = await readAllSubscriptions();
-  const subscription = allSubscriptions.find(sub => sub.id === id);
-  
+  const subscription = allSubscriptions.find((sub) => sub.id === id);
+
   if (!subscription) return false;
-  
+
   const year = getYearFromDate(subscription.startDate);
   const yearSubs = await readYearlySubscriptions(year);
-  const newSubs = yearSubs.filter(sub => sub.id !== id);
-  
+  const newSubs = yearSubs.filter((sub) => sub.id !== id);
+
   await saveYearlySubscriptions(year, newSubs);
   return true;
 }
