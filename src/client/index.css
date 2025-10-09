@@ -157,4 +157,8 @@
     fill: var(--text) !important;
     stroke: var(--text) !important;
   }
+
+  .rdp-month_caption {
+    font-weight: 300;
+  }
 }

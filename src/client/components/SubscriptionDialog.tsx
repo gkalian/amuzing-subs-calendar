@@ -16,7 +16,11 @@ type SubscriptionDialogProps = {
   currency: Currency; // initial currency (from App)
   currencies: Currency[];
   subscriptions: Service[];
+  mode?: 'create' | 'edit';
+  initial?: { id: string; serviceId: string; startDate: string; amount: number; currency: string };
+  onDelete?: (id: string) => void | Promise<void>;
   onSave?: (payload: {
+    id?: string; // present in edit mode
     serviceId: string;
     startDate: string; // YYYY-MM-DD
     amount: number;
@@ -31,6 +35,9 @@ function SubscriptionDialog({
   currency,
   currencies,
   subscriptions,
+  mode = 'create',
+  initial,
+  onDelete,
   onSave,
 }: SubscriptionDialogProps) {
   // Always use current date when dialog is opened
@@ -41,10 +48,24 @@ function SubscriptionDialog({
   const [curr, setCurr] = useState<Currency>(currency);
   const [currOpen, setCurrOpen] = useState<boolean>(false);
 
-  // Reset date to current date when dialog is opened
+  // Initialize/reset values on open depending on mode
   useEffect(() => {
-    if (open) setDate(new Date().toISOString().slice(0, 10));
-  }, [open]);
+    if (!open) return;
+    if (mode === 'edit' && initial) {
+      setDate(initial.startDate);
+      setAmount((Number(initial.amount) || 0).toFixed(2));
+      setCurr(currencies.find((c) => c.code === initial.currency) || currency);
+      setSelectedSub(initial.serviceId);
+      const found = subscriptions.find((s) => s.id === initial.serviceId);
+      setQuery(found?.name || '');
+    } else {
+      setDate(new Date().toISOString().slice(0, 10));
+      setAmount('0.00');
+      setCurr(currency);
+      setSelectedSub('');
+      setQuery('');
+    }
+  }, [open, mode, initial, currencies, currency, subscriptions]);
 
   useEffect(() => {
     if (!open) return;
@@ -91,8 +112,10 @@ function SubscriptionDialog({
       .replace(/^-+|-+$/g, '');
   }
 
+  const title = mode === 'edit' ? 'Edit subscription' : 'New subscription';
+
   return (
-    <Modal open={open} onClose={onClose} title="New subscription">
+    <Modal open={open} onClose={onClose} title={title} zIndexBase={70}>
       <div className="flex flex-col gap-4">
         {/* Row 1: Date + Amount + Currency */}
         <div className="flex items-end gap-3">
@@ -171,11 +194,28 @@ function SubscriptionDialog({
       </div>
 
       <div className="mt-5 flex justify-end gap-2">
+        {mode === 'edit' && initial && (
+          <Button
+            type="button"
+            variant="danger"
+            size="md"
+            onClick={async () => {
+              if (!initial) return;
+              const confirmed = window.confirm('Delete this subscription?');
+              if (!confirmed) return;
+              await onDelete?.(initial.id);
+            }}
+          >
+            Delete
+          </Button>
+        )}
         <Button
           type="button"
+          size="md"
           onClick={async () => {
             const userText = query.trim();
             const payload = {
+              id: mode === 'edit' ? initial?.id : undefined,
               serviceId: selectedSub || (userText ? `custom-${slugify(userText)}` : 'custom'),
               startDate: date,
               amount: Number.parseFloat(amount || '0') || 0,

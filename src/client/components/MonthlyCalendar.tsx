@@ -140,9 +140,9 @@ function MonthlyCalendar({
             <Button
               type="button"
               variant="ghost"
-              size="sm"
+              size="lg"
               onClick={() => setYearOpen((v) => !v)}
-              className="align-baseline text-2xl font-semibold text-[var(--text-muted)] hover:text-[var(--text)] focus:outline-none px-1 py-0 h-auto"
+              className="align-baseline !text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none !px-1 !bg-transparent !border-0"
             >
               {yearLabel}
             </Button>
@@ -150,16 +150,14 @@ function MonthlyCalendar({
           {yearOpen && (
             <div
               ref={dropdownRef}
-              className="absolute left-0 mt-2 max-h-64 w-40 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
+              className="absolute right-0 mt-2 max-h-64 w-28 overflow-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-1 shadow-lg backdrop-blur z-50"
             >
               {years.map((y) => {
                 const isActive = y === viewDate.year();
                 return (
-                  <Button
+                  <button
                     key={y}
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                       isActive
                         ? 'bg-[var(--active)] text-[var(--text)]'
@@ -172,14 +170,14 @@ function MonthlyCalendar({
                   >
                     <span>{y}</span>
                     {isActive && <span className="text-[var(--text-muted)]">•</span>}
-                  </Button>
+                  </button>
                 );
               })}
             </div>
           )}
         </div>
         {/* Right-side summary */}
-        <div className="text-sm font-medium text-[var(--text-muted)]">
+        <div className="text-2xl font-semibold text-[var(--text)]">
           {monthlyTotalText ?? `0.00 ${currencySymbol ?? ''}`}
         </div>
       </header>

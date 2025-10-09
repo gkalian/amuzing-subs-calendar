@@ -28,7 +28,7 @@ function MonthList({ activeMonth, onSelectMonth, className, calendarHeight }: Mo
               variant="ghost"
               size="sm"
               onClick={() => onSelectMonth(index)}
-              className={`w-10 text-[11px] font-semibold uppercase tracking-[0.28em] transition ${
+              className={`w-10 text-[11px] font-semibold uppercase tracking-[0.28em] transition bg-transparent hover:bg-transparent border-transparent ${
                 isActive ? 'text-[var(--text)]' : 'text-slate-400 hover:text-[var(--text)]'
               }`}
               style={{ height: `${rowHeight}px` }}

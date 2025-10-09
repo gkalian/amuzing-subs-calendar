@@ -40,6 +40,8 @@ function App() {
     })(),
   );
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [markedDates, setMarkedDates] = useState<Set<string>>(new Set());
   const [subscriptions, setSubscriptions] = useState<ClientSubscription[]>([]);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -159,7 +161,7 @@ function App() {
               selected={selectedCurrency}
               currencies={currencies}
               onChange={setSelectedCurrency}
-              onNewSub={() => setDialogOpen(true)}
+              onNewSub={() => { setDialogMode('create'); setEditingId(null); setDialogOpen(true); }}
             />
           )}
         </div>
@@ -172,29 +174,57 @@ function App() {
           currency={selectedCurrency}
           currencies={currencies}
           subscriptions={services}
-          onSave={async (payload: {
-            serviceId: string;
-            startDate: string;
-            amount: number;
-            currency: string;
-          }) => {
+          mode={dialogMode}
+          initial={editingId ? (() => { const s = subscriptions.find(x => x.id === editingId); return s ? { id: s.id, serviceId: s.serviceId, startDate: s.startDate, amount: s.amount, currency: s.currency } : undefined; })() : undefined}
+          onDelete={async (id: string) => {
             try {
-              const body: Omit<ClientSubscription, 'id'> = {
-                userId: 'default',
-                serviceId: payload.serviceId,
-                startDate: payload.startDate,
-                amount: payload.amount,
-                currency: payload.currency,
-              };
-              const created = await api.add(body);
-              setSubscriptions((prev) => [...prev, created]);
-              // Mark the selected date locally
-              setMarkedDates((prev) => new Set(prev).add(payload.startDate));
+              await api.delete(id);
+              setSubscriptions((prev) => {
+                const next = prev.filter((s) => s.id !== id);
+                // recompute markedDates from next
+                const dates = new Set<string>(next.map((s) => s.startDate));
+                setMarkedDates(dates);
+                return next;
+              });
               setDialogOpen(false);
-            } catch (e) {
-              // For now, just close; later we can show a toast
+            } catch {
               setDialogOpen(false);
-              // console.error('Failed to save subscription', e);
+            }
+          }}
+          onSave={async (payload: { id?: string; serviceId: string; startDate: string; amount: number; currency: string }) => {
+            try {
+              if (dialogMode === 'edit' && payload.id) {
+                const updated = await api.update(payload.id, {
+                  serviceId: payload.serviceId,
+                  startDate: payload.startDate,
+                  amount: payload.amount,
+                  currency: payload.currency,
+                });
+                setSubscriptions((prev) => {
+                  const next = prev.map((s) => (s.id === updated.id ? updated : s));
+                  const dates = new Set<string>(next.map((s) => s.startDate));
+                  setMarkedDates(dates);
+                  return next;
+                });
+              } else {
+                const body: Omit<ClientSubscription, 'id'> = {
+                  userId: 'default',
+                  serviceId: payload.serviceId,
+                  startDate: payload.startDate,
+                  amount: payload.amount,
+                  currency: payload.currency,
+                };
+                const created = await api.add(body);
+                setSubscriptions((prev) => {
+                  const next = [...prev, created];
+                  const dates = new Set<string>(next.map((s) => s.startDate));
+                  setMarkedDates(dates);
+                  return next;
+                });
+              }
+              setDialogOpen(false);
+            } catch {
+              setDialogOpen(false);
             }
           }}
         />
@@ -202,10 +232,10 @@ function App() {
       <SubscriptionList
         open={listOpen}
         onClose={() => setListOpen(false)}
-        onEdit={() => {
-          if (selectedDate) {
-            console.debug('Edit subscriptions for date:', selectedDate);
-          }
+        onEdit={(id) => {
+          setEditingId(id);
+          setDialogMode('edit');
+          setDialogOpen(true);
         }}
         date={selectedDate ?? undefined}
         items={selectedDateItems}
