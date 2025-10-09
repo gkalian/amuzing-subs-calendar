@@ -12,7 +12,6 @@
     --bg-gradient-to: #434c5e; /* nord2 */
 
     --surface: rgba(46, 52, 64, 0.92); /* nord0 with alpha */
-    --surface-2: rgba(67, 76, 94, 0.35); /* nord2 with alpha */
     --overlay: rgba(46, 52, 64, 0.75); /* dark overlay */
     --border: rgba(236, 239, 244, 0.14); /* nord6 as subtle border */
 
@@ -24,6 +23,9 @@
     --hover: rgba(216, 222, 233, 0.06); /* muted hover */
     --active: rgba(216, 222, 233, 0.12);
     --ring: rgba(136, 192, 208, 0.45); /* nord8 frost */
+
+    /* Markers and accents */
+    --marker: #bf616a; /* nord11 - red for subscription dots */
 
     /* Accent gradient for "today" highlight (Frost range) */
     --accent-from: rgba(143, 188, 187, 0.45); /* nord7 */
@@ -83,7 +85,7 @@
     font-weight: 600; /* font-semibold */
     outline: none;
     border-color: var(--border);
-    background: var(--surface-2);
+    background: var(--surface);
     color: var(--text);
   }
   .btn:hover {

@@ -28,7 +28,7 @@ export default function DatePicker({ value, onChange, label = 'Start date' }: Da
         type="button"
         variant="ghost"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex h-10 items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface-2)] px-3 text-left text-[var(--text)] outline-none hover:bg-[var(--hover)] focus:ring-1 focus:ring-[var(--ring)]"
+        className="inline-flex h-10 items-center justify-between rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 text-left text-[var(--text)] outline-none hover:bg-[var(--hover)] focus:ring-1 focus:ring-[var(--ring)]"
         aria-haspopup="dialog"
         aria-expanded={open}
       >

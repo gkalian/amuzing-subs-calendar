@@ -113,37 +113,36 @@ function MonthlyCalendar({
               open={yearOpen}
               onOpenChange={setYearOpen}
               align="right"
-              className="w-28"
               anchor={
                 <Button
                   type="button"
                   variant="ghost"
                   size="lg"
-                  className="align-baseline !text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none !px-1 !bg-transparent !border-0"
+                  aria-haspopup="listbox"
+                  aria-expanded={yearOpen}
+                  aria-controls="year-menu"
+                  className="align-baseline text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none px-1 bg-transparent border-0"
                 >
                   {yearLabel}
                 </Button>
               }
             >
-              <Listbox
-                options={years.map<ListboxOption<number>>((y) => ({
-                  id: String(y),
-                  label: String(y),
-                  value: y,
-                }))}
-                activeIndex={-1}
-                selectedId={String(viewDate.year())}
-                onSelect={(opt) => {
-                  onSelectYear?.(opt.value);
-                  setYearOpen(false);
-                }}
-              />
+              <div id="year-menu">
+                <Listbox
+                  options={years.map<ListboxOption<number>>((y) => ({ id: String(y), label: String(y), value: y }))}
+                  activeIndex={-1}
+                  selectedId={String(viewDate.year())}
+                  onSelect={(opt) => {
+                    onSelectYear?.(opt.value);
+                    setYearOpen(false);
+                  }}
+                />
+              </div>
             </Dropdown>
           </h1>
         </div>
         {/* Right-side summary */}
         <div className="text-2xl font-semibold text-[var(--text)]">
-          {monthlyTotalText ?? `0.00 ${currencySymbol ?? ''}`}
         </div>
       </header>
 
@@ -221,9 +220,9 @@ function MonthlyCalendar({
                     {/* Mark dot if the date is in markedDates. Using a simple bullet to avoid style changes. */}
                     {hasSubscriptions && (
                       <span
-                        className="absolute right-2 top-2"
+                        className="absolute right-2 top-2 text-[var(--marker)]"
                         aria-hidden
-                        style={{ color: '#ef4444', fontSize: '2em', lineHeight: 1 }}
+                        style={{ fontSize: '2em', lineHeight: 1 }}
                       >
                         •
                       </span>

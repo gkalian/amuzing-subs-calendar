@@ -135,7 +135,7 @@ function App() {
         </div>
       )}
       <div className="mx-auto flex max-w-4xl items-center justify-center px-4 py-6 flex-1">
-        <div className="flex w-full max-w-4xl min-w-[600px] flex-col gap-2 rounded-3xl border border-[var(--border)] bg-[var(--surface)] px-4 py-5 shadow-[0_28px_72px_-56px_rgba(13,148,136,0.55)] backdrop-blur-xl">
+        <div className="flex w-full max-w-4xl min-w-[600px] flex-col gap-2 rounded-3xl border border-[var(--border)] bg-[var(--surface)] px-4 py-5 shadow-modal backdrop-blur-xl">
           <div className="flex flex-col lg:flex-row lg:items-stretch lg:gap-[5px]">
             <MonthList
               activeMonth={viewDate.month()}
