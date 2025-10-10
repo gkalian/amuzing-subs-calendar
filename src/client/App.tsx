@@ -134,13 +134,13 @@ function App() {
           {loadError}
         </div>
       )}
-      <div className="mx-auto flex max-w-4xl items-center justify-center px-4 py-6 flex-1">
-        <div className="flex w-full max-w-4xl min-w-[600px] flex-col gap-2 rounded-3xl border border-[var(--border)] bg-[var(--surface)] px-4 py-5 shadow-modal backdrop-blur-xl">
-          <div className="flex flex-col lg:flex-row lg:items-stretch lg:gap-[5px]">
+      <div className="mx-auto flex max-w-4xl items-center justify-center px-4 py-6 flex-1 overflow-x-auto">
+        <div className="flex w-full max-w-4xl min-w-[500px] flex-col gap-2 rounded-3xl border border-[var(--border)] bg-[var(--surface)] px-4 py-5 shadow-modal backdrop-blur-xl">
+          <div className="flex flex-row items-stretch gap-[5px]">
             <MonthList
               activeMonth={viewDate.month()}
               onSelectMonth={handleSelectMonth}
-              className="mt-0 lg:mt-[64px]"
+              className="mt-[64px]"
             />
             <MonthlyCalendar
               viewDate={viewDate}

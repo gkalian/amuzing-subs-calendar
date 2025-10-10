@@ -142,7 +142,7 @@ function MonthlyCalendar({
           </h1>
         </div>
         {/* Right-side summary */}
-        <div className="text-2xl font-semibold text-[var(--text)]">
+        <div className="text-lg font-semibold text-[var(--text)]">
           {monthlyTotalText ? (
             <div className="flex items-center gap-2">
               <span aria-label={`Monthly total`}>{monthlyTotalText}</span>
