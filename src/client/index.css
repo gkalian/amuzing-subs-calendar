@@ -159,7 +159,16 @@
     stroke: var(--text) !important;
   }
 
-  .rdp-month_caption {
-    font-weight: 300;
+  /* DatePicker overrides (scoped to DayPicker root we mark with .rdp-theme) */
+  /* Month caption label */
+  .rdp-theme .rdp-month_caption,
+  .rdp-theme .rdp-caption_label {
+    font-weight: 200 !important;
+  }
+
+  /* Selected day weight (cover ARIA and class-based modifiers) */
+  .rdp-theme .rdp-day[aria-selected='true'],
+  .rdp-theme .rdp-day_selected {
+    font-weight: 200 !important;
   }
 }
