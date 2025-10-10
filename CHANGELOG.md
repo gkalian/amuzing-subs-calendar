@@ -1,3 +1,12 @@
+## [1.4.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.4.0...v1.4.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* data-picker css tweaks ([cf68e51](https://github.com/gkalian/amuzing-subs-calendar/commit/cf68e513615a1b7eaee9ca679e574e642120f4f3))
+* prepare json file and add categories ([43c2dc6](https://github.com/gkalian/amuzing-subs-calendar/commit/43c2dc68b14250c3cf8e298c5b8fe8cb011c8a60))
+* styling updates ([0057ebe](https://github.com/gkalian/amuzing-subs-calendar/commit/0057ebe670d3e1de9d330784c43f4533c702b1ba))
+
 # [1.4.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.3.0...v1.4.0) (2025-10-09)
 
 
