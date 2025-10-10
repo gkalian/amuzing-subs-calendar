@@ -13,6 +13,7 @@ import subscriptionsData from './data/subscriptions.json';
 // Local types matching JSON shapes
 type Currency = { code: string; name: string; symbol: string };
 type Service = { id: string; name: string };
+type ServiceCategory = { category: string; services: Service[] };
 
 const DEFAULT_CURRENCY: Currency = {
   code: 'EUR',
@@ -29,7 +30,21 @@ function App() {
       ? (currenciesData as Currency[])
       : [DEFAULT_CURRENCY],
   );
-  const [services, setServices] = useState<Service[]>(subscriptionsData as Service[]);
+  const [services, setServices] = useState<Service[]>(() => {
+    const data = subscriptionsData as unknown as Service[] | ServiceCategory[];
+    // If data is categorized, flatten categories; else assume it's already a flat array
+    if (
+      Array.isArray(data) &&
+      data.length > 0 &&
+      typeof (data as any)[0] === 'object' &&
+      data[0] !== null &&
+      'services' in (data[0] as any)
+    ) {
+      const cats = data as ServiceCategory[];
+      return cats.flatMap((c) => c.services);
+    }
+    return data as Service[];
+  });
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
     (() => {
       const list =

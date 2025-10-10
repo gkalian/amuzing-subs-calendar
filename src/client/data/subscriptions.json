@@ -1,20 +1,40 @@
 [
-  { "id": "amazon-prime-video", "name": "Amazon Prime Video" },
-  { "id": "apple-one", "name": "Apple One" },
-  { "id": "apple-tv-plus", "name": "Apple TV+" },
-  { "id": "discovery-plus", "name": "Discovery+" },
-  { "id": "disney-plus", "name": "Disney+" },
-  { "id": "hulu", "name": "Hulu" },
-  { "id": "max", "name": "Max (HBO Max)" },
-  { "id": "miro", "name": "Miro" },
-  { "id": "netflix", "name": "Netflix" },
-  { "id": "now", "name": "NOW" },
-  { "id": "paramount-plus", "name": "Paramount+" },
-  { "id": "peacock", "name": "Peacock" },
-  { "id": "showtime", "name": "Showtime" },
-  { "id": "slack", "name": "Slack" },
-  { "id": "spotify", "name": "Spotify" },
-  { "id": "starz", "name": "Starz" },
-  { "id": "youtube-premium", "name": "YouTube Premium" },
-  { "id": "zoom", "name": "Zoom" }
+  {
+    "category": "Streaming",
+    "services": [
+      { "id": "amazon-prime-video", "name": "Amazon Prime Video" },
+      { "id": "apple-tv-plus", "name": "Apple TV+" },
+      { "id": "discovery-plus", "name": "Discovery+" },
+      { "id": "disney-plus", "name": "Disney+" },
+      { "id": "hulu", "name": "Hulu" },
+      { "id": "max", "name": "Max (HBO Max)" },
+      { "id": "netflix", "name": "Netflix" },
+      { "id": "now", "name": "NOW" },
+      { "id": "paramount-plus", "name": "Paramount+" },
+      { "id": "peacock", "name": "Peacock" },
+      { "id": "showtime", "name": "Showtime" },
+      { "id": "starz", "name": "Starz" },
+      { "id": "youtube-premium", "name": "YouTube Premium" }
+    ]
+  },
+  {
+    "category": "Music",
+    "services": [
+      { "id": "spotify", "name": "Spotify" }
+    ]
+  },
+  {
+    "category": "Productivity",
+    "services": [
+      { "id": "miro", "name": "Miro" },
+      { "id": "slack", "name": "Slack" },
+      { "id": "zoom", "name": "Zoom" }
+    ]
+  },
+  {
+    "category": "Bundles",
+    "services": [
+      { "id": "apple-one", "name": "Apple One" }
+    ]
+  }
 ]
