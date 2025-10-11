@@ -5,6 +5,7 @@ export type Subscription = {
   startDate: string; // YYYY-MM-DD
   amount: number;
   currency: string;
+  monthly?: boolean;
 };
 
 export class ApiAdapter {

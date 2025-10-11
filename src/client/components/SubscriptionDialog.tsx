@@ -17,7 +17,14 @@ type SubscriptionDialogProps = {
   currencies: Currency[];
   subscriptions: Service[];
   mode?: 'create' | 'edit';
-  initial?: { id: string; serviceId: string; startDate: string; amount: number; currency: string };
+  initial?: {
+    id: string;
+    serviceId: string;
+    startDate: string;
+    amount: number;
+    currency: string;
+    monthly?: boolean;
+  };
   onDelete?: (id: string) => void | Promise<void>;
   onSave?: (payload: {
     id?: string; // present in edit mode
@@ -26,6 +33,7 @@ type SubscriptionDialogProps = {
     amount: number;
     currency: string; // code
     userId?: string;
+    monthly?: boolean;
   }) => void | Promise<void>;
 };
 
@@ -47,6 +55,7 @@ function SubscriptionDialog({
   const [amount, setAmount] = useState<string>('0.00');
   const [curr, setCurr] = useState<Currency>(currency);
   const [currOpen, setCurrOpen] = useState<boolean>(false);
+  const [monthly, setMonthly] = useState<boolean>(false);
 
   // Initialize/reset values on open depending on mode
   useEffect(() => {
@@ -58,12 +67,14 @@ function SubscriptionDialog({
       setSelectedSub(initial.serviceId);
       const found = subscriptions.find((s) => s.id === initial.serviceId);
       setQuery(found?.name || '');
+      setMonthly(Boolean(initial.monthly));
     } else {
       setDate(new Date().toISOString().slice(0, 10));
       setAmount('0.00');
       setCurr(currency);
       setSelectedSub('');
       setQuery('');
+      setMonthly(false);
     }
   }, [open, mode, initial, currencies, currency, subscriptions]);
 
@@ -170,27 +181,40 @@ function SubscriptionDialog({
           </div>
         </div>
 
-        {/* Row 2: Service field */}
-        <div className="flex flex-col gap-1 text-sm">
-          <span className="text-[var(--text-muted)]">Service</span>
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <Autocomplete
-                value={query}
-                onChange={(v) => {
-                  setQuery(v);
-                  setSelectedSub('');
-                }}
-                options={serviceOptions}
-                onSelect={(opt) => {
-                  setSelectedSub(opt.value.id);
-                  setQuery(opt.value.name);
-                }}
-                placeholder="Type a service or search..."
-              />
-            </div>
+      {/* Row 2: Service field */}
+      <div className="flex flex-col gap-1 text-sm">
+        <span className="text-[var(--text-muted)]">Service</span>
+        <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <Autocomplete
+              value={query}
+              onChange={(v) => {
+                setQuery(v);
+                setSelectedSub('');
+              }}
+              options={serviceOptions}
+              onSelect={(opt) => {
+                setSelectedSub(opt.value.id);
+                setQuery(opt.value.name);
+              }}
+              placeholder="Type a service or search..."
+            />
           </div>
         </div>
+      </div>
+
+      {/* Row 3: Recurrence */}
+      <div className="mt-1 flex items-center gap-2 text-sm">
+        <input
+          id="monthly"
+          type="checkbox"
+          className="h-4 w-4 rounded border-[var(--border)] bg-[var(--surface)] text-[var(--text)]"
+          checked={monthly}
+          onChange={(e) => setMonthly(e.target.checked)}
+        />
+        <label htmlFor="monthly" className="select-none text-[var(--text)]">
+          Monthly
+        </label>
       </div>
 
       <div className="mt-5 flex justify-end gap-2">
@@ -220,6 +244,7 @@ function SubscriptionDialog({
               startDate: date,
               amount: Number.parseFloat(amount || '0') || 0,
               currency: curr.code,
+              monthly: monthly || undefined,
             };
             try {
               await onSave?.(payload);
@@ -231,6 +256,7 @@ function SubscriptionDialog({
         >
           Save
         </Button>
+      </div>
       </div>
     </Modal>
   );
