@@ -4,7 +4,6 @@
     "services": [
       { "id": "amazon-prime-video", "name": "Amazon Prime Video" },
       { "id": "apple-tv-plus", "name": "Apple TV+" },
-      { "id": "discovery-plus", "name": "Discovery+" },
       { "id": "disney-plus", "name": "Disney+" },
       { "id": "hulu", "name": "Hulu" },
       { "id": "max", "name": "Max (HBO Max)" },
@@ -20,21 +19,21 @@
   {
     "category": "Music",
     "services": [
+      { "id": "apple-music", "name": "Apple Music" },
+      { "id": "youtube-music", "name": "YouTube Music" },
+      { "id": "tidal", "name": "Tidal" },
+      { "id": "deezer", "name": "Deezer" },
+      { "id": "pandora", "name": "Pandora" },
       { "id": "spotify", "name": "Spotify" }
     ]
   },
   {
     "category": "Productivity",
     "services": [
+      { "id": "discord", "name": "Discord" },
       { "id": "miro", "name": "Miro" },
       { "id": "slack", "name": "Slack" },
-      { "id": "zoom", "name": "Zoom" }
-    ]
-  },
-  {
-    "category": "Bundles",
-    "services": [
-      { "id": "apple-one", "name": "Apple One" }
+      { "id": "zoom", "name": "Zoom" }      
     ]
   }
 ]
