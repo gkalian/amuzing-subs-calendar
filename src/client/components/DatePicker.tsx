@@ -4,6 +4,7 @@ import 'react-day-picker/style.css';
 import dayjs from 'dayjs';
 import useOutsideClick from '../hooks/useOutsideClick';
 import Button from './forms/Button';
+import { AnimatePresence, motion } from 'motion/react';
 
 export type DatePickerProps = {
   value: string; // YYYY-MM-DD
@@ -35,26 +36,33 @@ export default function DatePicker({ value, onChange, label = 'Start date' }: Da
         <span>{selected ? dayjs(selected).format('D MMM YYYY') : 'Select date'}</span>
         <span className="opacity-70">▾</span>
       </Button>
-      {open && (
-        <div
-          ref={popoverRef}
-          className="absolute z-popover mt-2 w-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2 shadow-popover"
-        >
-          <DayPicker
-            mode="single"
-            selected={selected}
-            onSelect={(d) => {
-              if (d) {
-                onChange(dayjs(d).format('YYYY-MM-DD'));
-                setOpen(false);
-              }
-            }}
-            defaultMonth={selected}
-            weekStartsOn={1}
-            className="rdp-theme"
-          />
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={popoverRef}
+            className="absolute z-popover mt-2 w-auto rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2 shadow-popover"
+            style={{ transformOrigin: 'top left' }}
+            initial={{ opacity: 0, y: 4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
+          >
+            <DayPicker
+              mode="single"
+              selected={selected}
+              onSelect={(d) => {
+                if (d) {
+                  onChange(dayjs(d).format('YYYY-MM-DD'));
+                  setOpen(false);
+                }
+              }}
+              defaultMonth={selected}
+              weekStartsOn={1}
+              className="rdp-theme"
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </label>
   );
 }

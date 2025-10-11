@@ -3,6 +3,7 @@ import Button from './forms/Button';
 import Dropdown from './forms/Dropdown';
 import Listbox, { type ListboxOption } from './forms/Listbox';
 import { Dayjs } from 'dayjs';
+import { AnimatePresence, motion } from 'motion/react';
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -67,6 +68,7 @@ function MonthlyCalendar({
   const weeks = useMemo(() => getCalendarMatrix(viewDate), [viewDate]);
   const monthLabel = viewDate.format('MMMM');
   const yearLabel = viewDate.format('YYYY');
+  const monthKey = viewDate.format('YYYY-MM');
   const baseClass = 'flex w-full flex-1 flex-col gap-2';
   const containerClass = [baseClass, className].filter(Boolean).join(' ');
   const gridRef = useRef<HTMLDivElement | null>(null);
@@ -102,6 +104,18 @@ function MonthlyCalendar({
   }, [onGridHeightChange, weeks]);
 
   // No custom outside click or scroll logic; handled by shared Dropdown/Listbox
+
+  // Determine slide direction based on previous month
+  const prevViewRef = useRef(viewDate);
+  const direction = useMemo(() => {
+    const prev = prevViewRef.current;
+    if (viewDate.isAfter(prev, 'month')) return 1; // next month -> slide left
+    if (viewDate.isBefore(prev, 'month')) return -1; // prev month -> slide right
+    return 0;
+  }, [viewDate]);
+  useEffect(() => {
+    prevViewRef.current = viewDate;
+  }, [viewDate]);
 
   return (
     <div className={containerClass}>
@@ -163,10 +177,18 @@ function MonthlyCalendar({
           ))}
         </div>
 
-        <div className="grid grid-cols-7 gap-px bg-[var(--border)] text-xs">
-          {weeks.map((week) => (
-            <div key={week[0].format('YYYY-MM-DD')} className="contents">
-              {week.map((date) => {
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={monthKey}
+            className="grid grid-cols-7 gap-px bg-[var(--border)] text-xs"
+            initial={{ x: direction === 0 ? 0 : direction > 0 ? 24 : -24, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: direction === 0 ? 0 : direction > 0 ? -24 : 24, opacity: 0 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+          >
+            {weeks.map((week) => (
+              <div key={week[0].format('YYYY-MM-DD')} className="contents">
+                {week.map((date) => {
                 const isCurrentMonth = date.month() === viewDate.month();
                 const isToday = date.isSame(today, 'day');
                 const isWeekend = date.day() === 0 || date.day() === 6;
@@ -237,7 +259,8 @@ function MonthlyCalendar({
               })}
             </div>
           ))}
-        </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );
