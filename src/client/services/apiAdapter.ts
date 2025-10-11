@@ -1,12 +1,5 @@
-export type Subscription = {
-  id: string;
-  userId: string;
-  serviceId: string;
-  startDate: string; // YYYY-MM-DD
-  amount: number;
-  currency: string;
-  monthly?: boolean;
-};
+import type { Subscription } from '../types';
+export type { Subscription };
 
 export class ApiAdapter {
   private baseUrl = '/api/subscriptions';

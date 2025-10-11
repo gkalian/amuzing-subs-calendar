@@ -1,32 +1,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import { ApiAdapter, type Subscription as ApiSubscription } from '../services/apiAdapter';
-
-// Local copies of shared shapes (can be moved to types.ts later)
-export type Currency = { code: string; name: string; symbol: string };
-export type Service = { id: string; name: string };
-export type Subscription = ApiSubscription;
-
-function clampToMonth(date: Dayjs, targetDay: number): Dayjs {
-  const end = date.endOf('month');
-  const day = Math.min(targetDay, end.date());
-  return date.date(day);
-}
-
-function generateMonthlySeries(startISO: string, months = 12): string[] {
-  const start = dayjs(startISO, 'YYYY-MM-DD', true);
-  const startDay = start.date();
-  const out: string[] = [];
-  for (let i = 0; i < months; i++) {
-    const d = clampToMonth(start.add(i, 'month'), startDay).format('YYYY-MM-DD');
-    out.push(d);
-  }
-  return out;
-}
-
-function recomputeMarkedDates(subs: Subscription[]): Set<string> {
-  return new Set<string>(subs.map((s) => s.startDate));
-}
+import { ApiAdapter } from '../services/apiAdapter';
+import type { Currency, Service, Subscription } from '../types';
+import { generateMonthlySeries, recomputeMarkedDates } from '../utils/subscriptionSeries';
 
 export type UseSubscriptionsState = {
   subscriptions: Subscription[];

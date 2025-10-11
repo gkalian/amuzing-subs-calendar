@@ -10,11 +10,7 @@ import { useSubscriptions } from './hooks/useSubscriptions';
 import { useCalendar } from './hooks/useCalendar';
 import currenciesData from './data/currencies.json';
 import subscriptionsData from './data/subscriptions.json';
-
-// Local types matching JSON shapes
-type Currency = { code: string; name: string; symbol: string };
-type Service = { id: string; name: string };
-type ServiceCategory = { category: string; services: Service[] };
+import type { Currency, Service, ServiceCategory } from './types';
 
 const DEFAULT_CURRENCY: Currency = {
   code: 'EUR',

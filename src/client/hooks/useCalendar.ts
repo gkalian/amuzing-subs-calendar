@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
-import dayjs, { Dayjs } from 'dayjs';
-import type { Currency } from './useSubscriptions';
-import type { Subscription } from '../services/apiAdapter';
+import dayjs from 'dayjs';
+import type { Currency, Subscription } from '../types';
 
 export function useCalendar(subscriptions: Subscription[], selectedCurrency: Currency | null) {
   const [viewDate, setViewDate] = useState(dayjs());
