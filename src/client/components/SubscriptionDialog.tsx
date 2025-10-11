@@ -159,8 +159,6 @@ function SubscriptionDialog({
                       aria-controls="currency-menu-dialog"
                     >
                       <span className="text-base">{curr.symbol}</span>
-                      <span className="text-xs text-[var(--text-muted)]">{curr.name}</span>
-                      <span className="ml-auto opacity-60">▾</span>
                     </Button>
                   }
                 >
