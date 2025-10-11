@@ -103,20 +103,6 @@ function MonthlyCalendar({
     };
   }, [onGridHeightChange, weeks]);
 
-  // No custom outside click or scroll logic; handled by shared Dropdown/Listbox
-
-  // Determine slide direction based on previous month
-  const prevViewRef = useRef(viewDate);
-  const direction = useMemo(() => {
-    const prev = prevViewRef.current;
-    if (viewDate.isAfter(prev, 'month')) return 1; // next month -> slide left
-    if (viewDate.isBefore(prev, 'month')) return -1; // prev month -> slide right
-    return 0;
-  }, [viewDate]);
-  useEffect(() => {
-    prevViewRef.current = viewDate;
-  }, [viewDate]);
-
   return (
     <div className={containerClass}>
       <header className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
@@ -177,14 +163,15 @@ function MonthlyCalendar({
           ))}
         </div>
 
-        <AnimatePresence initial={false}>
+        <AnimatePresence initial={false} mode="wait">
           <motion.div
             key={monthKey}
             className="grid grid-cols-7 gap-px bg-[var(--border)] text-xs"
-            initial={{ x: direction === 0 ? 0 : direction > 0 ? 24 : -24, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: direction === 0 ? 0 : direction > 0 ? -24 : 24, opacity: 0 }}
-            transition={{ duration: 0.22, ease: 'easeOut' }}
+            initial={{ opacity: 0, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, filter: 'blur(6px)' }}
+            transition={{ opacity: { duration: 0.28, ease: 'easeOut' }, filter: { duration: 0.28, ease: 'easeOut' } }}
+            style={{ willChange: 'opacity, filter' }}
           >
             {weeks.map((week) => (
               <div key={week[0].format('YYYY-MM-DD')} className="contents">
