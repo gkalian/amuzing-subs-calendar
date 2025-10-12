@@ -1,3 +1,10 @@
+# [1.6.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.5.1...v1.6.0) (2025-10-12)
+
+
+### Features
+
+* add helm chart and dockerfile ([5dd980e](https://github.com/gkalian/amuzing-subs-calendar/commit/5dd980e0332c7c1bf93c9c4a5ad363d2d8848f2b))
+
 ## [1.5.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.5.0...v1.5.1) (2025-10-12)
 
 
