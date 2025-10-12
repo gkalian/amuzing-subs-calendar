@@ -23,17 +23,20 @@
       { "id": "youtube-music", "name": "YouTube Music" },
       { "id": "tidal", "name": "Tidal" },
       { "id": "deezer", "name": "Deezer" },
-      { "id": "pandora", "name": "Pandora" },
-      { "id": "spotify", "name": "Spotify" }
+      { "id": "spotify", "name": "Spotify" },
+      { "id": "yandex-music", "name": "Yandex Music" }
     ]
   },
   {
-    "category": "Productivity",
+    "category": "Different",
     "services": [
       { "id": "discord", "name": "Discord" },
       { "id": "miro", "name": "Miro" },
       { "id": "slack", "name": "Slack" },
-      { "id": "zoom", "name": "Zoom" }      
+      { "id": "zoom", "name": "Zoom" },
+      { "id": "whatsapp", "name": "WhatsApp" },
+      { "id": "telegram", "name": "Telegram" },
+      { "id": "apple", "name": "Apple" }
     ]
   }
 ]
