@@ -25,4 +25,4 @@ RUN addgroup -S -g 1001 app \
 USER app
 
 EXPOSE 8080
-CMD ["node", "dist-server/index.js"]
+CMD ["node", "dist/server/index.js"]
