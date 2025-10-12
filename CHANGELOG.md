@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.0...v1.6.1) (2025-10-12)
+
+
+### Bug Fixes
+
+* rename chart ([37cd975](https://github.com/gkalian/amuzing-subs-calendar/commit/37cd975c45828f638a4437e1376f01733c51482d))
+
 # [1.6.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.5.1...v1.6.0) (2025-10-12)
 
 
