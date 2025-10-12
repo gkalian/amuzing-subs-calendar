@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.3...v1.6.4) (2025-10-12)
+
+
+### Bug Fixes
+
+* extend helm chart config with pvc settings ([6893468](https://github.com/gkalian/amuzing-subs-calendar/commit/6893468e20f12e83af2915f3e10dabb92befd531))
+
 ## [1.6.3](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.2...v1.6.3) (2025-10-12)
 
 
