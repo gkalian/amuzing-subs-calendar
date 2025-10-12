@@ -18,3 +18,15 @@
 {{- define "amuzing-subs-calendar.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" -}}
 {{- end -}}
+
+{{- define "amuzing-subs-calendar.labels" -}}
+app.kubernetes.io/name: {{ include "amuzing-subs-calendar.name" . }}
+helm.sh/chart: {{ include "amuzing-subs-calendar.chart" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end -}}
+
+{{- define "amuzing-subs-calendar.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "amuzing-subs-calendar.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}
