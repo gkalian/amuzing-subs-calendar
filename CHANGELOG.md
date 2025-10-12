@@ -1,3 +1,10 @@
+## [1.6.8](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.7...v1.6.8) (2025-10-12)
+
+
+### Bug Fixes
+
+* update helm chart files ([cee6a1a](https://github.com/gkalian/amuzing-subs-calendar/commit/cee6a1a77437b009d8fd380f908c8a468260e7fb))
+
 ## [1.6.7](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.6...v1.6.7) (2025-10-12)
 
 
