@@ -1,3 +1,10 @@
+## [1.6.7](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.6...v1.6.7) (2025-10-12)
+
+
+### Bug Fixes
+
+* update helpers tpl file ([5d63537](https://github.com/gkalian/amuzing-subs-calendar/commit/5d63537c81e5183d4321a9ddebc9a61b5ccc210e))
+
 ## [1.6.6](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.5...v1.6.6) (2025-10-12)
 
 
