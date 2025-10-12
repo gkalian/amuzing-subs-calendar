@@ -1,3 +1,21 @@
+# [1.5.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.4.1...v1.5.0) (2025-10-12)
+
+
+### Bug Fixes
+
+* cleanup currency button ([b8f3a13](https://github.com/gkalian/amuzing-subs-calendar/commit/b8f3a1370283b0878eadf4f8a6e6dcd055688922))
+* extend subs list ([a3d652d](https://github.com/gkalian/amuzing-subs-calendar/commit/a3d652d3550793d709d57f787a46d00d252a0ffa))
+* extracted shared types and do month helpers ([29afe91](https://github.com/gkalian/amuzing-subs-calendar/commit/29afe91e7323d84bc94a499126ca8efcca1a3eb5))
+* fade animation for months switching ([0929c37](https://github.com/gkalian/amuzing-subs-calendar/commit/0929c3737da9fa11dd9e64658ed1e617774125ae))
+* refactor app file and extract hooks ([257059d](https://github.com/gkalian/amuzing-subs-calendar/commit/257059da116dcc6da5cec7c498755293b818e731))
+* styling fixes ([1ae8d29](https://github.com/gkalian/amuzing-subs-calendar/commit/1ae8d29c7c2c9b1fec1335e7b704cbde5d156ab4))
+
+
+### Features
+
+* monthly checkbox and deletion added ([b79d361](https://github.com/gkalian/amuzing-subs-calendar/commit/b79d36149fd93de432f4eea57c2fa9128ac46707))
+* smooth motio animations added ([1659b61](https://github.com/gkalian/amuzing-subs-calendar/commit/1659b617f0603aa67039a51db99d7a3710eac289))
+
 ## [1.4.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.4.0...v1.4.1) (2025-10-10)
 
 
