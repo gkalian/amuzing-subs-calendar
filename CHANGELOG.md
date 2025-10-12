@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.2...v1.6.3) (2025-10-12)
+
+
+### Bug Fixes
+
+* correct folder folder ([e9fe5b4](https://github.com/gkalian/amuzing-subs-calendar/commit/e9fe5b453ebf8b4aa4fc129c070b9e3b1e44e710))
+
 ## [1.6.2](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.1...v1.6.2) (2025-10-12)
 
 
