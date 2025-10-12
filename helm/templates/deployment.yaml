@@ -1,48 +1,77 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "microservice.fullname" . }}
+  name: {{ include "amuzing-filebrowser.fullname" . }}
   labels:
-    {{- include "microservice.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "amuzing-filebrowser.name" . }}
+    helm.sh/chart: {{ include "amuzing-filebrowser.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "microservice.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: {{ include "amuzing-filebrowser.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        {{- include "microservice.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "amuzing-filebrowser.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+{{- if .Values.podSecurityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.podSecurityContext.fsGroup }}
+        fsGroupChangePolicy: {{ .Values.podSecurityContext.fsGroupChangePolicy | quote }}
+{{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        - name: app
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+{{- if .Values.securityContext.enabled }}
+          securityContext:
+            runAsNonRoot: {{ .Values.securityContext.runAsNonRoot }}
+{{- if hasKey .Values.securityContext "runAsUser" }}
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+{{- end }}
+{{- if hasKey .Values.securityContext "runAsGroup" }}
+            runAsGroup: {{ .Values.securityContext.runAsGroup }}
+{{- end }}
+            allowPrivilegeEscalation: {{ .Values.securityContext.allowPrivilegeEscalation }}
+            readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
+{{- end }}
+          env:
+            - name: FILEBROWSER_ROOT
+              value: {{ .Values.env.FILEBROWSER_ROOT | quote }}
+            - name: PORT
+              value: {{ .Values.env.PORT | quote }}
+            - name: LOG_LEVEL
+              value: {{ .Values.env.LOG_LEVEL | quote }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.targetPort }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+              containerPort: 8080
           readinessProbe:
             httpGet:
-              path: /health
+              path: /api/health
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /api/health
               port: http
             initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
-          {{- if .Values.env }}
-          env:
-            {{- toYaml .Values.env | nindent 12 }}
-          {{- end }}
+            periodSeconds: 20
+          volumeMounts:
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+      volumes:
+        - name: data
+{{- if and .Values.persistence.enabled (eq .Values.persistence.type "hostPath") }}
+          hostPath:
+            path: {{ .Values.persistence.hostPath.path }}
+            type: {{ .Values.persistence.hostPath.type | default "Directory" }}
+{{- else }}
+          persistentVolumeClaim:
+            claimName: {{ include "amuzing-filebrowser.fullname" . }}
+{{- end }}
