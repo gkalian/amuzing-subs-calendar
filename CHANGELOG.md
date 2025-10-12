@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.5.0...v1.5.1) (2025-10-12)
+
+
+### Bug Fixes
+
+* minor subs tweaks ([6d52b29](https://github.com/gkalian/amuzing-subs-calendar/commit/6d52b298fbf00a9145ecd2b341ff2dcbbed3e975))
+
 # [1.5.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.4.1...v1.5.0) (2025-10-12)
 
 
