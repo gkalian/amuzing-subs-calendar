@@ -41,8 +41,6 @@ spec:
             readOnlyRootFilesystem: {{ .Values.securityContext.readOnlyRootFilesystem }}
 {{- end }}
           env:
-            - name: FILEBROWSER_ROOT
-              value: {{ .Values.env.FILEBROWSER_ROOT | quote }}
             - name: PORT
               value: {{ .Values.env.PORT | quote }}
             - name: LOG_LEVEL
@@ -73,5 +71,5 @@ spec:
             type: {{ .Values.persistence.hostPath.type | default "Directory" }}
 {{- else }}
           persistentVolumeClaim:
-            claimName: {{ include "amuzing-filebrowser.fullname" . }}
+            claimName: {{ include "amuzing-subs-calendar.fullname" . }}
 {{- end }}
