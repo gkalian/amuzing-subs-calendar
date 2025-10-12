@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.5...v1.6.6) (2025-10-12)
+
+
+### Bug Fixes
+
+* correct deployment yaml file tags and labels ([322e453](https://github.com/gkalian/amuzing-subs-calendar/commit/322e453e560540e5df875cc18e6faf804df70392))
+
 ## [1.6.5](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.4...v1.6.5) (2025-10-12)
 
 
