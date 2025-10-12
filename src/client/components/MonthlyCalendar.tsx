@@ -117,11 +117,11 @@ function MonthlyCalendar({
                 <Button
                   type="button"
                   variant="ghost"
-                  size="lg"
+                  size="sm"
                   aria-haspopup="listbox"
                   aria-expanded={yearOpen}
                   aria-controls="year-menu"
-                  className="align-baseline text-2xl font-semibold text-[var(--text)] hover:text-[var(--text)] focus:outline-none px-1 bg-transparent border-0"
+                  className="align-baseline !text-2xl font-semibold leading-none !h-auto !min-h-0 !px-1 text-[var(--text)] hover:text-[var(--text)] focus:outline-none bg-transparent !border-0"
                 >
                   {yearLabel}
                 </Button>
@@ -142,7 +142,7 @@ function MonthlyCalendar({
           </h1>
         </div>
         {/* Right-side summary */}
-        <div className="text-lg font-semibold text-[var(--text)]">
+        <div className="text-2xl font-semibold text-[var(--text)]">
           {monthlyTotalText ? (
             <div className="flex items-center gap-2">
               <span aria-label={`Monthly total`}>{monthlyTotalText}</span>

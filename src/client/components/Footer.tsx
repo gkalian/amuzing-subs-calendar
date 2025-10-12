@@ -7,7 +7,7 @@ function getCurrentYear(): number {
 function Footer() {
   const year = useMemo(getCurrentYear, []);
   return (
-    <footer className="w-full text-center text-slate-200 text-[9pt] mt-auto mb-[5px]">
+    <footer className="w-full text-center text-slate-300 text-[11pt] mt-auto mb-[5px]">
       Amuzing Subscriptions Calendar © {year}
     </footer>
   );
