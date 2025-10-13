@@ -1,3 +1,10 @@
+## [1.6.13](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.12...v1.6.13) (2025-10-13)
+
+
+### Bug Fixes
+
+* some meta tags and pics update ([447a808](https://github.com/gkalian/amuzing-subs-calendar/commit/447a80845c322db9f2b3e2f3cfbd25eac32b4aff))
+
 ## [1.6.12](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.11...v1.6.12) (2025-10-13)
 
 
