@@ -1,3 +1,10 @@
+## [1.6.11](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.10...v1.6.11) (2025-10-13)
+
+
+### Bug Fixes
+
+* update config with new env variable ([7b03f2d](https://github.com/gkalian/amuzing-subs-calendar/commit/7b03f2dd9e161dea17e3818788c4fa610bc7e11e))
+
 ## [1.6.10](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.9...v1.6.10) (2025-10-12)
 
 
