@@ -56,7 +56,7 @@ autoscaling:
   targetCPUUtilizationPercentage: 80
 
 persistence:
-  enabled: false
+  enabled: true
   type: pvc
   size: 1Gi
   storageClass: ''

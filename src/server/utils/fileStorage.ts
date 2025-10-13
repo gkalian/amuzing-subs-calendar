@@ -1,7 +1,11 @@
 import fs from 'fs/promises';
-import path from 'path';
+import path from 'node:path';
  
-const DATA_DIR = path.join(__dirname, '../../../data');
+const DATA_DIR =
+  process.env.DATA_DIR ||
+  (process.env.NODE_ENV === 'production'
+    ? '/data'
+    : path.resolve(process.cwd(), 'data'));
 
 interface NodeJSError extends Error {
   code?: string;
@@ -57,8 +61,13 @@ export async function readAllSubscriptions(): Promise<Subscription[]> {
     for (const file of subscriptionFiles) {
       const filePath = path.join(DATA_DIR, file);
       const content = await fs.readFile(filePath, 'utf-8');
-      const { subscriptions } = JSON.parse(content);
-      allSubscriptions = [...allSubscriptions, ...subscriptions];
+      const parsed = JSON.parse(content);
+      const subs: Subscription[] = Array.isArray(parsed)
+        ? parsed
+        : Array.isArray((parsed as any)?.subscriptions)
+          ? (parsed as any).subscriptions
+          : [];
+      allSubscriptions = [...allSubscriptions, ...subs];
     }
 
     return allSubscriptions;
@@ -78,8 +87,13 @@ export async function readYearlySubscriptions(year: string | number): Promise<Su
 
   try {
     const content = await fs.readFile(filePath, 'utf-8');
-    const { subscriptions } = JSON.parse(content);
-    return subscriptions;
+    const parsed = JSON.parse(content);
+    const subs: Subscription[] = Array.isArray(parsed)
+      ? parsed
+      : Array.isArray((parsed as any)?.subscriptions)
+        ? (parsed as any).subscriptions
+        : [];
+    return subs;
   } catch (error) {
     const nodeError = error as NodeJSError;
     if (nodeError.code === 'ENOENT') {
