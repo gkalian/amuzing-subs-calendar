@@ -1,3 +1,10 @@
+## [1.6.12](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.11...v1.6.12) (2025-10-13)
+
+
+### Bug Fixes
+
+* add pvc template ([3171b27](https://github.com/gkalian/amuzing-subs-calendar/commit/3171b279aea7ed513fa53a065e9f46a25d95f5c2))
+
 ## [1.6.11](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.10...v1.6.11) (2025-10-13)
 
 
