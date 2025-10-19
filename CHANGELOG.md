@@ -1,3 +1,10 @@
+## [1.6.14](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.13...v1.6.14) (2025-10-19)
+
+
+### Bug Fixes
+
+* add ai services ([02776b0](https://github.com/gkalian/amuzing-subs-calendar/commit/02776b0cd4372b7a0e7ccdab71c4d1174cba8ab5))
+
 ## [1.6.13](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.12...v1.6.13) (2025-10-13)
 
 
