@@ -38,5 +38,13 @@
       { "id": "telegram", "name": "Telegram" },
       { "id": "apple", "name": "Apple" }
     ]
+  },
+  {
+    "category": "AI services",
+    "services": [
+      { "id": "claude", "name": "Claude" },
+      { "id": "openai", "name": "OpenAI" },
+      { "id": "mistral", "name": "Mistral" }
+    ]
   }
 ]
