@@ -46,5 +46,11 @@
       { "id": "openai", "name": "OpenAI" },
       { "id": "mistral", "name": "Mistral" }
     ]
+  }, {
+    "category": "Food",
+    "services": [
+      { "id": "wolt", "name": "Wolt" },
+      { "id": "efood", "name": "Efood" }
+    ]
   }
 ]
