@@ -1,3 +1,10 @@
+## [1.6.15](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.14...v1.6.15) (2025-10-24)
+
+
+### Bug Fixes
+
+* add food services ([7838974](https://github.com/gkalian/amuzing-subs-calendar/commit/78389742644b18a9d3ee3e14bac0aa891675dde6))
+
 ## [1.6.14](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.13...v1.6.14) (2025-10-19)
 
 
