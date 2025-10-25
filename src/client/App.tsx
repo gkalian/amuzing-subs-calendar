@@ -5,9 +5,10 @@ import MonthlyCalendar from './components/MonthlyCalendar';
 import Footer from './components/Footer';
 import ActionPanel from './components/ActionPanel';
 import SubscriptionDialog from './components/SubscriptionDialog';
-import SubscriptionList, { type SubscriptionListItem } from './components/SubscriptionList';
-import CategoryPieChart, { type PieDatum } from './components/CategoryPieChart';
-import Modal from './components/forms/Modal';
+import SubscriptionList from './components/SubscriptionList';
+import StatsModal from './components/StatsModal';
+import { usePerCategoryData } from './hooks/usePerCategoryData';
+import { useSelectedDateItems } from './hooks/useSelectedDateItems';
 import { useSubscriptions } from './hooks/useSubscriptions';
 import { useCalendar } from './hooks/useCalendar';
 import currenciesData from './data/currencies.json';
@@ -21,7 +22,7 @@ const DEFAULT_CURRENCY: Currency = {
 };
 
 function App() {
-  const today = useMemo(() => dayjs(), []);
+  const today = dayjs();
   const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const [currencies, setCurrencies] = useState<Currency[]>(
     (currenciesData as Currency[])?.length > 0
@@ -73,12 +74,6 @@ function App() {
   } = useSubscriptions(currencies, services);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
-  // Settings (currencies and services) are loaded directly from JSON at build time
-  useEffect(() => {
-    // Marked dates will be filled after loading subscriptions
-    setCurrencies((prev) => (prev.length > 0 ? prev : [DEFAULT_CURRENCY]));
-    setServices((prev) => prev);
-  }, []);
 
   // Load existing subscriptions on first render
   useEffect(() => {
@@ -99,22 +94,12 @@ function App() {
     } catch {}
     return map;
   }, []);
-  const perCategoryData: PieDatum[] = useMemo(() => {
-    if (!selectedCurrency) return [];
-    const yearStr = viewDate.format('YYYY');
-    const monthStr = viewDate.format('MM');
-    const code = selectedCurrency.code;
-    const acc = new Map<string, number>();
-    for (const s of subscriptions) {
-      if (s.currency !== code) continue;
-      if (!s.startDate.startsWith(`${yearStr}-${monthStr}`)) continue;
-      const cat = serviceCategoryMap[s.serviceId] || 'Other';
-      acc.set(cat, (acc.get(cat) || 0) + (Number.isFinite(s.amount) ? (s.amount as number) : 0));
-    }
-    return Array.from(acc.entries())
-      .map(([label, value]) => ({ label, value }))
-      .sort((a, b) => b.value - a.value);
-  }, [subscriptions, viewDate, selectedCurrency, serviceCategoryMap]);
+  const perCategoryData = usePerCategoryData(
+    subscriptions,
+    viewDate,
+    selectedCurrency,
+    serviceCategoryMap,
+  );
   const handleSubscriptionDateClick = (isoDate: string) => {
     setSelectedDate(isoDate);
     setListOpen(true);
@@ -123,23 +108,12 @@ function App() {
     setStatsOpen(true);
   };
 
-  const selectedDateItems: SubscriptionListItem[] = useMemo(() => {
-    if (!selectedDate) {
-      return [];
-    }
-
-    return subscriptions
-      .filter((sub) => sub.startDate === selectedDate)
-      .map((sub) => {
-        const name = serviceNameMap[sub.serviceId] ?? sub.serviceId;
-        const symbol = currencySymbolMap[sub.currency] ?? sub.currency;
-        return {
-          id: sub.id,
-          name,
-          amountText: `${sub.amount.toFixed(2)} ${symbol}`,
-        } satisfies SubscriptionListItem;
-      });
-  }, [selectedDate, subscriptions, serviceNameMap, currencySymbolMap]);
+  const selectedDateItems = useSelectedDateItems(
+    selectedDate,
+    subscriptions,
+    serviceNameMap,
+    currencySymbolMap,
+  );
 
   return (
     <main className="min-h-dvh overflow-y-hidden bg-gradient-to-br from-[var(--bg-gradient-from)] via-[var(--bg-gradient-via)] to-[var(--bg-gradient-to)] flex flex-col">
@@ -309,35 +283,13 @@ function App() {
         date={selectedDate ?? undefined}
         items={selectedDateItems}
       />
-      <Modal
+      <StatsModal
         open={statsOpen}
         onClose={() => setStatsOpen(false)}
         title={`${viewDate.format('MMMM YYYY')} — ${monthlyTotalText}`}
-      >
-        <div className="flex flex-col sm:flex-row gap-4 items-start">
-          <CategoryPieChart data={perCategoryData} />
-          <div className="flex-1 min-w-[180px] max-h-[360px] overflow-auto">
-            {perCategoryData.length === 0 && (
-              <div className="text-sm text-[var(--text-muted)]">No data for this month</div>
-            )}
-            {perCategoryData.map((d, idx) => (
-              <div key={d.label} className="flex items-center justify-between gap-3 py-1">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="inline-block h-3 w-3 rounded"
-                    style={{ backgroundColor: `hsl(${(idx * 57) % 360}deg 70% 55%)` }}
-                    aria-hidden
-                  />
-                  <span>{d.label}</span>
-                </div>
-                <span className="font-medium">
-                  {d.value.toFixed(2)} {selectedCurrency?.symbol}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Modal>
+        data={perCategoryData}
+        currencySymbol={selectedCurrency?.symbol}
+      />
     </main>
   );
 }
