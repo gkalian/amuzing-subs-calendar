@@ -28,14 +28,34 @@
     ]
   },
   {
-    "category": "Different",
+    "category": "Messengers",
     "services": [
-      { "id": "discord", "name": "Discord" },
-      { "id": "miro", "name": "Miro" },
-      { "id": "slack", "name": "Slack" },
-      { "id": "zoom", "name": "Zoom" },
       { "id": "whatsapp", "name": "WhatsApp" },
-      { "id": "telegram", "name": "Telegram" },
+      { "id": "telegram", "name": "Telegram" }
+    ]
+  },
+  {
+    "category": "Videoconferencing", 
+    "services": [
+      { "id": "zoom", "name": "Zoom" }
+    ]
+  },
+  {
+    "category": "Productivity",
+    "services": [
+      { "id": "slack", "name": "Slack" },
+      { "id": "miro", "name": "Miro" }  
+    ]
+  },
+  {
+    "category": "Games",
+    "services": [
+      { "id": "discord", "name": "Discord" }
+    ]
+  },
+  {
+    "category": "Technology", 
+    "services": [
       { "id": "apple", "name": "Apple" }
     ]
   },
@@ -46,11 +66,12 @@
       { "id": "openai", "name": "OpenAI" },
       { "id": "mistral", "name": "Mistral" }
     ]
-  }, {
-    "category": "Food",
+  },
+  {
+    "category": "Food delivery",
     "services": [
       { "id": "wolt", "name": "Wolt" },
-      { "id": "efood", "name": "Efood" }
+      { "id": "efood", "name": "Efood" }  
     ]
   }
 ]

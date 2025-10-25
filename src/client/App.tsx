@@ -6,6 +6,8 @@ import Footer from './components/Footer';
 import ActionPanel from './components/ActionPanel';
 import SubscriptionDialog from './components/SubscriptionDialog';
 import SubscriptionList, { type SubscriptionListItem } from './components/SubscriptionList';
+import CategoryPieChart, { type PieDatum } from './components/CategoryPieChart';
+import Modal from './components/forms/Modal';
 import { useSubscriptions } from './hooks/useSubscriptions';
 import { useCalendar } from './hooks/useCalendar';
 import currenciesData from './data/currencies.json';
@@ -53,6 +55,7 @@ function App() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [statsOpen, setStatsOpen] = useState(false);
   const {
     subscriptions,
     markedDates,
@@ -85,9 +88,39 @@ function App() {
     subscriptions,
     selectedCurrency,
   );
+  const serviceCategoryMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    try {
+      const cats = subscriptionsData as unknown as ServiceCategory[];
+      for (const c of cats) {
+        if (!c || !Array.isArray(c.services)) continue;
+        for (const s of c.services) map[s.id] = c.category;
+      }
+    } catch {}
+    return map;
+  }, []);
+  const perCategoryData: PieDatum[] = useMemo(() => {
+    if (!selectedCurrency) return [];
+    const yearStr = viewDate.format('YYYY');
+    const monthStr = viewDate.format('MM');
+    const code = selectedCurrency.code;
+    const acc = new Map<string, number>();
+    for (const s of subscriptions) {
+      if (s.currency !== code) continue;
+      if (!s.startDate.startsWith(`${yearStr}-${monthStr}`)) continue;
+      const cat = serviceCategoryMap[s.serviceId] || 'Other';
+      acc.set(cat, (acc.get(cat) || 0) + (Number.isFinite(s.amount) ? (s.amount as number) : 0));
+    }
+    return Array.from(acc.entries())
+      .map(([label, value]) => ({ label, value }))
+      .sort((a, b) => b.value - a.value);
+  }, [subscriptions, viewDate, selectedCurrency, serviceCategoryMap]);
   const handleSubscriptionDateClick = (isoDate: string) => {
     setSelectedDate(isoDate);
     setListOpen(true);
+  };
+  const handleMonthlyTotalClick = () => {
+    setStatsOpen(true);
   };
 
   const selectedDateItems: SubscriptionListItem[] = useMemo(() => {
@@ -135,6 +168,7 @@ function App() {
               markedDates={markedDates}
               monthlyTotalText={monthlyTotalText}
               onSubscriptionDateClick={handleSubscriptionDateClick}
+              onMonthlyTotalClick={handleMonthlyTotalClick}
             />
           </div>
           {selectedCurrency && (
@@ -275,6 +309,35 @@ function App() {
         date={selectedDate ?? undefined}
         items={selectedDateItems}
       />
+      <Modal
+        open={statsOpen}
+        onClose={() => setStatsOpen(false)}
+        title={`${viewDate.format('MMMM YYYY')} — ${monthlyTotalText}`}
+      >
+        <div className="flex flex-col sm:flex-row gap-4 items-start">
+          <CategoryPieChart data={perCategoryData} />
+          <div className="flex-1 min-w-[180px] max-h-[360px] overflow-auto">
+            {perCategoryData.length === 0 && (
+              <div className="text-sm text-[var(--text-muted)]">No data for this month</div>
+            )}
+            {perCategoryData.map((d, idx) => (
+              <div key={d.label} className="flex items-center justify-between gap-3 py-1">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="inline-block h-3 w-3 rounded"
+                    style={{ backgroundColor: `hsl(${(idx * 57) % 360}deg 70% 55%)` }}
+                    aria-hidden
+                  />
+                  <span>{d.label}</span>
+                </div>
+                <span className="font-medium">
+                  {d.value.toFixed(2)} {selectedCurrency?.symbol}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Modal>
     </main>
   );
 }

@@ -52,6 +52,8 @@ type MonthlyCalendarProps = {
   // Pre-formatted monthly total text (e.g., "123.45 €"). Falls back to 0.00 when not provided.
   monthlyTotalText?: string;
   onSubscriptionDateClick?: (isoDate: string) => void;
+  // Click handler for the monthly total text in the header
+  onMonthlyTotalClick?: () => void;
 };
 
 function MonthlyCalendar({
@@ -64,6 +66,7 @@ function MonthlyCalendar({
   markedDates,
   monthlyTotalText,
   onSubscriptionDateClick,
+  onMonthlyTotalClick,
 }: MonthlyCalendarProps) {
   const weeks = useMemo(() => getCalendarMatrix(viewDate), [viewDate]);
   const monthLabel = viewDate.format('MMMM');
@@ -145,7 +148,14 @@ function MonthlyCalendar({
         <div className="text-2xl font-semibold text-[var(--text)]">
           {monthlyTotalText ? (
             <div className="flex items-center gap-2">
-              <span aria-label={`Monthly total`}>{monthlyTotalText}</span>
+              <button
+                type="button"
+                onClick={onMonthlyTotalClick}
+                className="rounded-md px-2 py-1 transition hover:bg-[var(--hover)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[var(--accent)]"
+                aria-label={`Show monthly total breakdown`}
+              >
+                {monthlyTotalText}
+              </button>
             </div>
           ) : null}
         </div>
