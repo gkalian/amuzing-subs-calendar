@@ -1,3 +1,18 @@
+# [1.7.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.15...v1.7.0) (2025-10-25)
+
+
+### Bug Fixes
+
+* extrac hooks from app file ([44818ca](https://github.com/gkalian/amuzing-subs-calendar/commit/44818cacd8f1b175444d5d71fbd42258ff9a1f34))
+* extract serviceCategoryMap hook and monthly inference util ([be14258](https://github.com/gkalian/amuzing-subs-calendar/commit/be1425894e388eb5818a8346153ebe90e4a6302d))
+* minor formatting changes ([a91a7c9](https://github.com/gkalian/amuzing-subs-calendar/commit/a91a7c94e15ac1fc4e2b51cb40542d7ada2c83a9))
+* stabilize handlers with useCallback and replace inline callbacks ([cab80cc](https://github.com/gkalian/amuzing-subs-calendar/commit/cab80ccc84649b3857bda5d166004234b93f71bd))
+
+
+### Features
+
+* pie chart to see spended money ([cd07057](https://github.com/gkalian/amuzing-subs-calendar/commit/cd07057296a4eae00b057d6c9368baf8810b1883))
+
 ## [1.6.15](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.14...v1.6.15) (2025-10-24)
 
 
