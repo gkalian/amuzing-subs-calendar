@@ -8,10 +8,10 @@ Subscriptionss Calendar is a lightweight web app for tracking and visualizing re
 
 ## Features
 
- - Monthly calendar with highlighted subscription days.
- - Quick add/edit/delete in a modal dialog with a built-in date picker and autocomplete.
- - Recurring series: create monthly series, convert a single entry to a series, or delete a full series.
- - Multi-currency support with symbols and a per-month total summary.
+- Monthly calendar with highlighted subscription days.
+- Quick add/edit/delete in a modal dialog with a built-in date picker and autocomplete.
+- Recurring series: create monthly series, convert a single entry to a series, or delete a full series.
+- Multi-currency support with symbols and a per-month total summary.
 
 ## Το-Do
 
