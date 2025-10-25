@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import dayjs from 'dayjs';
 import MonthList from './components/MonthList';
 import MonthlyCalendar from './components/MonthlyCalendar';
@@ -92,13 +92,88 @@ function App() {
     selectedCurrency,
     serviceCategoryMap,
   );
-  const handleSubscriptionDateClick = (isoDate: string) => {
+  const handleSubscriptionDateClick = useCallback((isoDate: string) => {
     setSelectedDate(isoDate);
     setListOpen(true);
-  };
-  const handleMonthlyTotalClick = () => {
+  }, []);
+  const handleMonthlyTotalClick = useCallback(() => {
     setStatsOpen(true);
-  };
+  }, []);
+
+  const handleEdit = useCallback((id: string) => {
+    setEditingId(id);
+    setDialogMode('edit');
+    setDialogOpen(true);
+  }, []);
+
+  const handleDelete = useCallback(
+    async (id: string) => {
+      try {
+        const target = subscriptions.find((s) => s.id === id);
+        if (target && target.monthly) await deleteSeries(id);
+        else await deleteOne(id);
+        setDialogOpen(false);
+      } catch {
+        setDialogOpen(false);
+      }
+    },
+    [subscriptions, deleteSeries, deleteOne],
+  );
+
+  const handleSave = useCallback(
+    async (payload: {
+      id?: string;
+      serviceId: string;
+      startDate: string;
+      amount: number;
+      currency: string;
+      monthly?: boolean;
+    }) => {
+      try {
+        if (dialogMode === 'edit' && payload.id) {
+          if (payload.monthly)
+            await convertToSeries(payload.id, {
+              serviceId: payload.serviceId,
+              startDate: payload.startDate,
+              amount: payload.amount,
+              currency: payload.currency,
+              monthly: true,
+            });
+          else
+            await updateOne(payload.id, {
+              serviceId: payload.serviceId,
+              startDate: payload.startDate,
+              amount: payload.amount,
+              currency: payload.currency,
+              monthly: false,
+            });
+        } else {
+          if (payload.monthly)
+            await addSeries({
+              userId: 'default',
+              serviceId: payload.serviceId,
+              startDate: payload.startDate,
+              amount: payload.amount,
+              currency: payload.currency,
+              monthly: true,
+            });
+          else
+            await addOne({
+              userId: 'default',
+              serviceId: payload.serviceId,
+              startDate: payload.startDate,
+              amount: payload.amount,
+              currency: payload.currency,
+              monthly: false,
+            });
+        }
+        setDialogOpen(false);
+      } catch {
+        setDialogOpen(false);
+      }
+    },
+    [dialogMode, convertToSeries, updateOne, addSeries, addOne],
+  );
 
   const selectedDateItems = useSelectedDateItems(
     selectedDate,
@@ -180,77 +255,14 @@ function App() {
                 })()
               : undefined
           }
-          onDelete={async (id: string) => {
-            try {
-              const target = subscriptions.find((s) => s.id === id);
-              if (target && target.monthly) await deleteSeries(id);
-              else await deleteOne(id);
-              setDialogOpen(false);
-            } catch {
-              setDialogOpen(false);
-            }
-          }}
-          onSave={async (payload: {
-            id?: string;
-            serviceId: string;
-            startDate: string;
-            amount: number;
-            currency: string;
-            monthly?: boolean;
-          }) => {
-            try {
-              if (dialogMode === 'edit' && payload.id) {
-                if (payload.monthly)
-                  await convertToSeries(payload.id, {
-                    serviceId: payload.serviceId,
-                    startDate: payload.startDate,
-                    amount: payload.amount,
-                    currency: payload.currency,
-                    monthly: true,
-                  });
-                else
-                  await updateOne(payload.id, {
-                    serviceId: payload.serviceId,
-                    startDate: payload.startDate,
-                    amount: payload.amount,
-                    currency: payload.currency,
-                    monthly: false,
-                  });
-              } else {
-                if (payload.monthly)
-                  await addSeries({
-                    userId: 'default',
-                    serviceId: payload.serviceId,
-                    startDate: payload.startDate,
-                    amount: payload.amount,
-                    currency: payload.currency,
-                    monthly: true,
-                  });
-                else
-                  await addOne({
-                    userId: 'default',
-                    serviceId: payload.serviceId,
-                    startDate: payload.startDate,
-                    amount: payload.amount,
-                    currency: payload.currency,
-                    monthly: false,
-                  });
-              }
-              setDialogOpen(false);
-            } catch {
-              setDialogOpen(false);
-            }
-          }}
+          onDelete={handleDelete}
+          onSave={handleSave}
         />
       )}
       <SubscriptionList
         open={listOpen}
         onClose={() => setListOpen(false)}
-        onEdit={(id) => {
-          setEditingId(id);
-          setDialogMode('edit');
-          setDialogOpen(true);
-        }}
+        onEdit={handleEdit}
         date={selectedDate ?? undefined}
         items={selectedDateItems}
       />
