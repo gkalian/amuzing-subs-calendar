@@ -14,6 +14,8 @@ import { useCalendar } from './hooks/useCalendar';
 import currenciesData from './data/currencies.json';
 import subscriptionsData from './data/subscriptions.json';
 import type { Currency, Service, ServiceCategory } from './types';
+import { useServiceCategoryMap } from './hooks/useServiceCategoryMap';
+import { inferMonthlyFromHistory } from './utils/inferMonthly';
 
 const DEFAULT_CURRENCY: Currency = {
   code: 'EUR',
@@ -83,17 +85,7 @@ function App() {
     subscriptions,
     selectedCurrency,
   );
-  const serviceCategoryMap = useMemo(() => {
-    const map: Record<string, string> = {};
-    try {
-      const cats = subscriptionsData as unknown as ServiceCategory[];
-      for (const c of cats) {
-        if (!c || !Array.isArray(c.services)) continue;
-        for (const s of c.services) map[s.id] = c.category;
-      }
-    } catch {}
-    return map;
-  }, []);
+  const serviceCategoryMap = useServiceCategoryMap();
   const perCategoryData = usePerCategoryData(
     subscriptions,
     viewDate,
@@ -182,28 +174,7 @@ function App() {
                         monthly:
                           s.monthly !== undefined
                             ? s.monthly
-                            : (() => {
-                                // Fallback inference: check if there is at least one future month entry for same service
-                                const base = dayjs(s.startDate, 'YYYY-MM-DD', true);
-                                const baseDay = base.date();
-                                for (let i = 1; i < 12; i++) {
-                                  const t = base.add(i, 'month');
-                                  const end = t.endOf('month');
-                                  const day = Math.min(baseDay, end.date());
-                                  const dateStr = t.date(day).format('YYYY-MM-DD');
-                                  const exists = subscriptions.some(
-                                    (z) =>
-                                      z.serviceId === s.serviceId &&
-                                      z.currency === s.currency &&
-                                      Number.isFinite(z.amount) &&
-                                      Number.isFinite(s.amount) &&
-                                      z.amount === s.amount &&
-                                      z.startDate === dateStr,
-                                  );
-                                  if (exists) return true;
-                                }
-                                return false;
-                              })(),
+                            : inferMonthlyFromHistory(s, subscriptions),
                       }
                     : undefined;
                 })()
