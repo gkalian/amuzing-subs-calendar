@@ -73,5 +73,11 @@
       { "id": "wolt", "name": "Wolt" },
       { "id": "efood", "name": "Efood" }  
     ]
+  },
+  {
+    "category": "Software",
+    "services": [
+      { "id": "microsoft", "name": "Microsoft" }
+    ]
   }
 ]
