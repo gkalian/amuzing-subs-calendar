@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.0...v1.7.1) (2025-11-03)
+
+
+### Bug Fixes
+
+* add microsoft into subs ([1de43f1](https://github.com/gkalian/amuzing-subs-calendar/commit/1de43f1e70a092c058defd5fcfc73886de3180fe))
+
 # [1.7.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.6.15...v1.7.0) (2025-10-25)
 
 
