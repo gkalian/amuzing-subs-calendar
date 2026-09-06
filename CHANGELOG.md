@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.1...v1.7.2) (2026-09-06)
+
+
+### Bug Fixes
+
+* remove eslint and bump versions ([0131b59](https://github.com/gkalian/amuzing-subs-calendar/commit/0131b59d6e20d7db9c5589940754696b2a5b0fb9))
+
 ## [1.7.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.0...v1.7.1) (2025-11-03)
 
 
