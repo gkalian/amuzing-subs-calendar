@@ -30,7 +30,7 @@ subscriptionsRouter.get(
   '/year/:year',
   withEndpointLogging('subscriptions.listByYear', async (req, res) => {
     try {
-      const { year } = req.params;
+      const year = req.params.year as string;
       if (!/^\d{4}$/.test(year)) {
         return res.status(400).json({ error: 'Invalid year format. Use YYYY' });
       }
@@ -73,7 +73,7 @@ subscriptionsRouter.patch(
   '/:id',
   withEndpointLogging('subscriptions.update', async (req, res) => {
     try {
-      const updated = await updateSubscription(req.params.id, req.body);
+      const updated = await updateSubscription(req.params.id as string, req.body);
       if (!updated) {
         return res.status(404).json({ error: 'Subscription not found' });
       }
@@ -91,7 +91,7 @@ subscriptionsRouter.delete(
   '/:id',
   withEndpointLogging('subscriptions.delete', async (req, res) => {
     try {
-      const deleted = await deleteSubscription(req.params.id);
+      const deleted = await deleteSubscription(req.params.id as string);
       if (!deleted) {
         return res.status(404).json({ error: 'Subscription not found' });
       }

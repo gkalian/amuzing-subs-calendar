@@ -1,0 +1,25 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["react", "typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "react/rules-of-hooks": "error"
+  },
+  "env": {
+    "builtin": true,
+    "shared-node-browser": true,
+    "vitest": true
+  },
+  "globals": {
+    "__APP_NAME__": "readonly",
+    "__APP_VERSION__": "readonly"
+  },
+  "ignorePatterns": ["dist", "node_modules", ".vite"],
+  "settings": {
+    "react": {
+      "version": "19.2.8"
+    }
+  }
+}

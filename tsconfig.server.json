@@ -5,7 +5,6 @@
     "moduleResolution": "NodeNext",
     "outDir": "./dist/server",
     "rootDir": "./src/server",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
