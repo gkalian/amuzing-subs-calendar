@@ -1,6 +1,6 @@
 apiVersion: v2
 name: amuzing-subs-calendar
-version: 1.8.1
-appVersion: '1.8.1'
+version: 1.8.2
+appVersion: '1.8.2'
 description: Simple subscription calendar app
 type: application

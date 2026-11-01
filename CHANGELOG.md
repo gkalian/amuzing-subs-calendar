@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.8.1...v1.8.2) (2026-11-01)
+
+
+### Bug Fixes
+
+* proper error handling ([b4019f5](https://github.com/gkalian/amuzing-subs-calendar/commit/b4019f508ab74202a6a8467bbae81622c2a61707))
+
 ## [1.8.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.8.0...v1.8.1) (2026-11-01)
 
 
