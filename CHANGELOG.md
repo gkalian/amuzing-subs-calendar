@@ -1,3 +1,17 @@
+# [1.8.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.2...v1.8.0) (2026-11-01)
+
+
+### Bug Fixes
+
+* correct date, no re-render, bugs ([11bdcfa](https://github.com/gkalian/amuzing-subs-calendar/commit/11bdcfa8476e0eb73da222ed6b72e6619d122429))
+* libs update ([060940e](https://github.com/gkalian/amuzing-subs-calendar/commit/060940e9a79a97e0cb263ca70efeabbe762a7956))
+* linting, unused prop, fixes ([0f4cd6b](https://github.com/gkalian/amuzing-subs-calendar/commit/0f4cd6bcbe60910500576fe64c86cfb3585a02b3))
+
+
+### Features
+
+* new ci approach. heml chart update ([d68e2bc](https://github.com/gkalian/amuzing-subs-calendar/commit/d68e2bc79ded42321be01a7a2e28a12b4869047a))
+
 ## [1.7.2](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.1...v1.7.2) (2026-09-06)
 
 
