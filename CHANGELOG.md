@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.8.0...v1.8.1) (2026-11-01)
+
+
+### Bug Fixes
+
+* add validation and remove cors ([8ae041f](https://github.com/gkalian/amuzing-subs-calendar/commit/8ae041f9dfb87aa3df35abf6498c11413b2c89b2))
+
 # [1.8.0](https://github.com/gkalian/amuzing-subs-calendar/compare/v1.7.2...v1.8.0) (2026-11-01)
 
 
