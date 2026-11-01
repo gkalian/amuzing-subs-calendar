@@ -1,4 +1,3 @@
-import util from 'node:util';
 import express from 'express';
 
 export type LogLevel = 'error' | 'warn' | 'info' | 'debug';
@@ -38,7 +37,7 @@ export class Logger {
       level,
       msg: message,
       ...(this.name ? { logger: this.name } : {}),
-      ...(data || {}),
+      ...data,
     };
     // Single line JSON for easy ingestion
     // eslint-disable-next-line no-console

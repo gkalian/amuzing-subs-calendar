@@ -118,12 +118,6 @@ function SubscriptionDialog({
 
   // No manual outside click; handled by Dropdown/Autocomplete primitives
 
-  const filteredSubscriptions = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    if (!q) return subscriptions;
-    return subscriptions.filter((s) => s.name.toLowerCase().includes(q));
-  }, [subscriptions, query]);
-
   // Build options for primitives
   const serviceOptions: ListboxOption<Service>[] = useMemo(
     () => subscriptions.map((s) => ({ id: s.id, label: s.name, value: s })),

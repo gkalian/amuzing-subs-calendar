@@ -46,19 +46,16 @@ export default function CategoryPieChart({ data, size = 240, stroke, strokeWidth
   const cy = size / 2;
   const r = size * 0.42;
 
-  let angleCursor = 0;
+  const angles = data.map((d) => (total > 0 ? (Math.max(0, d.value) / total) * 360 : 0));
   const slices = data.map((d, idx) => {
-    const value = Math.max(0, d.value);
-    const angle = total > 0 ? (value / total) * 360 : 0;
-    const start = angleCursor;
-    const end = angleCursor + angle;
-    angleCursor = end;
+    const start = angles.slice(0, idx).reduce((s, a) => s + a, 0);
+    const angle = angles[idx];
     const color = d.color || `hsl(${(idx * 57) % 360}deg 70% 55%)`;
     return {
-      path: describeArc(cx, cy, r, start, end),
+      path: describeArc(cx, cy, r, start, start + angle),
       color,
       label: d.label,
-      value,
+      value: Math.max(0, d.value),
       angle,
     };
   });

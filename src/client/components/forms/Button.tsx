@@ -21,7 +21,7 @@ const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
 };
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', iconOnly, className, children, ...rest },
+  { variant = 'primary', size = 'md', iconOnly: _iconOnly, className, children, ...rest },
   ref,
 ) {
   const sizeCls = sizes[size];

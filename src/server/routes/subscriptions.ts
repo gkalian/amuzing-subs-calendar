@@ -5,7 +5,6 @@ import {
   addSubscription,
   updateSubscription,
   deleteSubscription,
-  type Subscription,
 } from '../utils/fileStorage.js';
 import { withEndpointLogging } from '../utils/logger.js';
 

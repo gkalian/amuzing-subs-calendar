@@ -23,36 +23,25 @@ const DEFAULT_CURRENCY: Currency = {
   symbol: '€',
 };
 
+// Static catalogs: they never change at runtime
+const CURRENCIES: Currency[] =
+  (currenciesData as Currency[])?.length > 0 ? (currenciesData as Currency[]) : [DEFAULT_CURRENCY];
+
+const SERVICES: Service[] = (() => {
+  const data = subscriptionsData as unknown as Service[] | ServiceCategory[];
+  // If data is categorized, flatten categories; else assume it's already a flat array
+  if (data.length > 0 && 'services' in data[0]) {
+    return (data as ServiceCategory[]).flatMap((c) => c.services);
+  }
+  return data as Service[];
+})();
+
 function App() {
   const today = dayjs();
-  const [currencies, setCurrencies] = useState<Currency[]>(
-    (currenciesData as Currency[])?.length > 0
-      ? (currenciesData as Currency[])
-      : [DEFAULT_CURRENCY],
-  );
-  const [services, setServices] = useState<Service[]>(() => {
-    const data = subscriptionsData as unknown as Service[] | ServiceCategory[];
-    // If data is categorized, flatten categories; else assume it's already a flat array
-    if (
-      Array.isArray(data) &&
-      data.length > 0 &&
-      typeof (data as any)[0] === 'object' &&
-      data[0] !== null &&
-      'services' in (data[0] as any)
-    ) {
-      const cats = data as ServiceCategory[];
-      return cats.flatMap((c) => c.services);
-    }
-    return data as Service[];
-  });
+  const currencies = CURRENCIES;
+  const services = SERVICES;
   const [selectedCurrency, setSelectedCurrency] = useState<Currency | null>(
-    (() => {
-      const list =
-        (currenciesData as Currency[])?.length > 0
-          ? (currenciesData as Currency[])
-          : [DEFAULT_CURRENCY];
-      return list.find((c) => c.code === 'EUR') || list[0] || null;
-    })(),
+    () => CURRENCIES.find((c) => c.code === 'EUR') || CURRENCIES[0] || null,
   );
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<'create' | 'edit'>('create');
@@ -61,7 +50,6 @@ function App() {
   const {
     subscriptions,
     markedDates,
-    loading,
     error,
     currencySymbolMap,
     serviceNameMap,
@@ -191,7 +179,6 @@ function App() {
               onNextMonth={nextMonth}
               className="flex-1"
               onSelectYear={selectYear}
-              currencySymbol={selectedCurrency?.symbol ?? ''}
               markedDates={markedDates}
               monthlyTotalText={monthlyTotalText}
               onSubscriptionDateClick={handleSubscriptionDateClick}

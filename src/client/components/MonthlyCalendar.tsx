@@ -46,7 +46,6 @@ type MonthlyCalendarProps = {
   className?: string;
   onGridHeightChange?: (height: number) => void;
   onSelectYear?: (year: number) => void;
-  currencySymbol?: string;
   // YYYY-MM-DD set of days to mark with a dot
   markedDates?: Set<string>;
   // Pre-formatted monthly total text (e.g., "123.45 €"). Falls back to 0.00 when not provided.
@@ -62,7 +61,6 @@ function MonthlyCalendar({
   className,
   onGridHeightChange,
   onSelectYear,
-  currencySymbol,
   markedDates,
   monthlyTotalText,
   onSubscriptionDateClick,

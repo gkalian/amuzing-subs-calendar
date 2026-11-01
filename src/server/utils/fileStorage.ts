@@ -20,10 +20,6 @@ export type Subscription = {
   currency: string;
 };
 
-type YearlySubscriptions = {
-  [year: string]: Subscription[];
-};
-
 // Ensure data directory exists
 async function ensureDataDir(): Promise<void> {
   try {
