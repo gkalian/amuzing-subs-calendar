@@ -7,8 +7,15 @@ import {
   deleteSubscription,
 } from '../utils/fileStorage.js';
 import { withEndpointLogging } from '../utils/logger.js';
+import { isValidId, validateSubscription } from '../utils/validation.js';
 
 export const subscriptionsRouter = express.Router();
+
+// Reject malformed ids before touching storage
+subscriptionsRouter.param('id', (req, res, next, id) => {
+  if (!isValidId(id)) return res.status(400).json({ error: 'Invalid id', field: 'id' });
+  next();
+});
 
 // GET /api/subscriptions - get all subscriptions across all years
 subscriptionsRouter.get(
@@ -47,13 +54,11 @@ subscriptionsRouter.get(
 subscriptionsRouter.post(
   '/',
   withEndpointLogging('subscriptions.create', async (req, res) => {
+    const input = validateSubscription(req.body, false);
+    if (!input.ok) return res.status(400).json({ error: input.error, field: input.field });
     try {
-      const subscriptionData = {
-        ...req.body,
-        userId: req.body.userId || 'default', // for now always default
-      };
-
-      const newSubscription = await addSubscription(subscriptionData);
+      // Single-user app: userId is always 'default', never taken from the client
+      const newSubscription = await addSubscription({ ...input.value, userId: 'default' });
       // Pass endpoint-specific metadata to the logger wrapper
       (res.locals as any).endpointMeta = {
         id: newSubscription.id,
@@ -71,8 +76,10 @@ subscriptionsRouter.post(
 subscriptionsRouter.patch(
   '/:id',
   withEndpointLogging('subscriptions.update', async (req, res) => {
+    const input = validateSubscription(req.body, true);
+    if (!input.ok) return res.status(400).json({ error: input.error, field: input.field });
     try {
-      const updated = await updateSubscription(req.params.id as string, req.body);
+      const updated = await updateSubscription(req.params.id as string, input.value);
       if (!updated) {
         return res.status(404).json({ error: 'Subscription not found' });
       }

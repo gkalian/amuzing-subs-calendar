@@ -15,9 +15,11 @@ export type Subscription = {
   id: string;
   userId: string;
   serviceId: string;
+  name?: string;
   startDate: string; // YYYY-MM-DD
   amount: number;
   currency: string;
+  monthly?: boolean;
 };
 
 // Ensure data directory exists
@@ -32,9 +34,12 @@ async function ensureDataDir(): Promise<void> {
   }
 }
 
-// Get file path for a specific year
-function getYearlyFilePath(year: string | number): string {
-  return path.join(DATA_DIR, `subscriptions_${year}.json`);
+// Get file path for a specific year.
+// The year goes into a file name, so anything but 4 digits is refused (no path traversal).
+export function getYearlyFilePath(year: string | number): string {
+  const y = String(year);
+  if (!/^\d{4}$/.test(y)) throw new Error(`Invalid year: ${y}`);
+  return path.join(DATA_DIR, `subscriptions_${y}.json`);
 }
 
 // Extract year from date string (YYYY-MM-DD)
