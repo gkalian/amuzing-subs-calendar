@@ -25,9 +25,10 @@ export type UseSubscriptionsActions = {
 export function useSubscriptions(currencies: Currency[], services: Service[]): UseSubscriptionsState & UseSubscriptionsActions {
   const api = useMemo(() => new ApiAdapter(), []);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [markedDates, setMarkedDates] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const markedDates = useMemo(() => recomputeMarkedDates(subscriptions), [subscriptions]);
 
   // Serialize write operations to avoid JSON file write races on backend
   const queueRef = useRef<Promise<any>>(Promise.resolve());
@@ -55,10 +56,8 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
     setLoading(true);
     setError(null);
     try {
-      const subs = await api.getAll();
-      setSubscriptions(subs);
-      setMarkedDates(recomputeMarkedDates(subs));
-    } catch (e) {
+      setSubscriptions(await api.getAll());
+    } catch {
       setError('Failed to load subscriptions');
     } finally {
       setLoading(false);
@@ -69,11 +68,7 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
     async (payload: Omit<Subscription, 'id'>) =>
       enqueue(async () => {
         const created = await api.add(payload);
-        setSubscriptions((prev) => {
-          const next = [...prev, created];
-          setMarkedDates(recomputeMarkedDates(next));
-          return next;
-        });
+        setSubscriptions((prev) => [...prev, created]);
         return created;
       }),
     [api, enqueue],
@@ -84,16 +79,14 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
       enqueue(async () => {
         const dates = generateMonthlySeries(base.startDate, months);
         const createdList: Subscription[] = [];
-        for (const date of dates) {
-          const body: Omit<Subscription, 'id'> = { ...base, startDate: date, monthly: true };
-          const created = await api.add(body);
-          createdList.push(created);
+        try {
+          for (const date of dates) {
+            createdList.push(await api.add({ ...base, startDate: date, monthly: true }));
+          }
+        } finally {
+          // Keep whatever was already saved on the server, even if a later request failed
+          setSubscriptions((prev) => [...prev, ...createdList]);
         }
-        setSubscriptions((prev) => {
-          const next = [...prev, ...createdList];
-          setMarkedDates(recomputeMarkedDates(next));
-          return next;
-        });
         return createdList;
       }),
     [api, enqueue],
@@ -103,11 +96,7 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
     async (id: string, updates: Partial<Subscription>) =>
       enqueue(async () => {
         const updated = await api.update(id, updates);
-        setSubscriptions((prev) => {
-          const next = prev.map((s) => (s.id === id ? updated : s));
-          setMarkedDates(recomputeMarkedDates(next));
-          return next;
-        });
+        setSubscriptions((prev) => prev.map((s) => (s.id === id ? updated : s)));
         return updated;
       }),
     [api, enqueue],
@@ -118,14 +107,11 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
       enqueue(async () => {
         const current = subscriptions.find((s) => s.id === id);
         if (!current) return [] as Subscription[];
-        const base: Subscription = {
-          ...current,
-          ...updates,
-          monthly: true,
-        };
+        const base: Subscription = { ...current, ...updates, monthly: true };
         // Update the base entry
         const updated = await api.update(id, {
           serviceId: base.serviceId,
+          name: base.name,
           startDate: base.startDate,
           amount: base.amount,
           currency: base.currency,
@@ -135,26 +121,27 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
         const seriesDates = generateMonthlySeries(base.startDate, months).slice(1); // skip month 0, already updated
         const existingKey = new Set(subscriptions.map((s) => `${s.serviceId}|${s.startDate}`));
         const createdList: Subscription[] = [];
-        for (const date of seriesDates) {
-          const key = `${base.serviceId}|${date}`;
-          if (existingKey.has(key)) continue;
-          const body: Omit<Subscription, 'id'> = {
-            userId: base.userId,
-            serviceId: base.serviceId,
-            startDate: date,
-            amount: base.amount,
-            currency: base.currency,
-            monthly: true,
-          };
-          const created = await api.add(body);
-          createdList.push(created);
+        try {
+          for (const date of seriesDates) {
+            if (existingKey.has(`${base.serviceId}|${date}`)) continue;
+            createdList.push(
+              await api.add({
+                userId: base.userId,
+                serviceId: base.serviceId,
+                name: base.name,
+                startDate: date,
+                amount: base.amount,
+                currency: base.currency,
+                monthly: true,
+              }),
+            );
+          }
+        } finally {
+          setSubscriptions((prev) => [
+            ...prev.map((s) => (s.id === updated.id ? updated : s)),
+            ...createdList,
+          ]);
         }
-        setSubscriptions((prev) => {
-          const next = prev.map((s) => (s.id === updated.id ? updated : s));
-          const merged = [...next, ...createdList];
-          setMarkedDates(recomputeMarkedDates(merged));
-          return merged;
-        });
         return [updated, ...createdList];
       }),
     [api, enqueue, subscriptions],
@@ -164,11 +151,7 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
     async (id: string) =>
       enqueue(async () => {
         await api.delete(id);
-        setSubscriptions((prev) => {
-          const next = prev.filter((s) => s.id !== id);
-          setMarkedDates(recomputeMarkedDates(next));
-          return next;
-        });
+        setSubscriptions((prev) => prev.filter((s) => s.id !== id));
       }),
     [api, enqueue],
   );
@@ -178,8 +161,7 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
       enqueue(async () => {
         const target = subscriptions.find((s) => s.id === id);
         if (!target) return;
-        const dates = generateMonthlySeries(target.startDate, 12);
-        const dateSet = new Set(dates);
+        const dateSet = new Set(generateMonthlySeries(target.startDate, 12));
         const idsToDelete = subscriptions
           .filter(
             (s) =>
@@ -193,12 +175,16 @@ export function useSubscriptions(currencies: Currency[], services: Service[]): U
           )
           .map((s) => s.id);
         if (!idsToDelete.includes(id)) idsToDelete.push(id);
-        for (const del of idsToDelete) await api.delete(del);
-        setSubscriptions((prev) => {
-          const next = prev.filter((s) => !idsToDelete.includes(s.id));
-          setMarkedDates(recomputeMarkedDates(next));
-          return next;
-        });
+        const deleted = new Set<string>();
+        try {
+          for (const del of idsToDelete) {
+            await api.delete(del);
+            deleted.add(del);
+          }
+        } finally {
+          // Drop only the entries the server actually deleted
+          setSubscriptions((prev) => prev.filter((s) => !deleted.has(s.id)));
+        }
       }),
     [api, enqueue, subscriptions],
   );

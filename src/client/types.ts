@@ -7,6 +7,7 @@ export type Subscription = {
   id: string;
   userId: string;
   serviceId: string;
+  name?: string; // display name for custom services (not in the catalog)
   startDate: string; // YYYY-MM-DD
   amount: number;
   currency: string;

@@ -25,7 +25,6 @@ const DEFAULT_CURRENCY: Currency = {
 
 function App() {
   const today = dayjs();
-  const [calendarHeight, setCalendarHeight] = useState<number | null>(null);
   const [currencies, setCurrencies] = useState<Currency[]>(
     (currenciesData as Currency[])?.length > 0
       ? (currenciesData as Currency[])
@@ -106,16 +105,13 @@ function App() {
     setDialogOpen(true);
   }, []);
 
+  // Errors are not caught here: SubscriptionDialog shows them and stays open
   const handleDelete = useCallback(
     async (id: string) => {
-      try {
-        const target = subscriptions.find((s) => s.id === id);
-        if (target && target.monthly) await deleteSeries(id);
-        else await deleteOne(id);
-        setDialogOpen(false);
-      } catch {
-        setDialogOpen(false);
-      }
+      const target = subscriptions.find((s) => s.id === id);
+      if (target && target.monthly) await deleteSeries(id);
+      else await deleteOne(id);
+      setDialogOpen(false);
     },
     [subscriptions, deleteSeries, deleteOne],
   );
@@ -124,56 +120,47 @@ function App() {
     async (payload: {
       id?: string;
       serviceId: string;
+      name?: string;
       startDate: string;
       amount: number;
       currency: string;
       monthly?: boolean;
     }) => {
-      try {
-        if (dialogMode === 'edit' && payload.id) {
-          if (payload.monthly)
-            await convertToSeries(payload.id, {
-              serviceId: payload.serviceId,
-              startDate: payload.startDate,
-              amount: payload.amount,
-              currency: payload.currency,
-              monthly: true,
-            });
-          else
-            await updateOne(payload.id, {
-              serviceId: payload.serviceId,
-              startDate: payload.startDate,
-              amount: payload.amount,
-              currency: payload.currency,
-              monthly: false,
-            });
-        } else {
-          if (payload.monthly)
-            await addSeries({
-              userId: 'default',
-              serviceId: payload.serviceId,
-              startDate: payload.startDate,
-              amount: payload.amount,
-              currency: payload.currency,
-              monthly: true,
-            });
-          else
-            await addOne({
-              userId: 'default',
-              serviceId: payload.serviceId,
-              startDate: payload.startDate,
-              amount: payload.amount,
-              currency: payload.currency,
-              monthly: false,
-            });
-        }
-        setDialogOpen(false);
-      } catch {
-        setDialogOpen(false);
+      const fields = {
+        serviceId: payload.serviceId,
+        name: payload.name,
+        startDate: payload.startDate,
+        amount: payload.amount,
+        currency: payload.currency,
+        monthly: Boolean(payload.monthly),
+      };
+      if (dialogMode === 'edit' && payload.id) {
+        if (fields.monthly) await convertToSeries(payload.id, fields);
+        else await updateOne(payload.id, fields);
+      } else {
+        if (fields.monthly) await addSeries({ userId: 'default', ...fields });
+        else await addOne({ userId: 'default', ...fields });
       }
+      setDialogOpen(false);
     },
     [dialogMode, convertToSeries, updateOne, addSeries, addOne],
   );
+
+  // Memoized so the dialog does not reset its fields on unrelated re-renders
+  const editingInitial = useMemo(() => {
+    if (!editingId) return undefined;
+    const s = subscriptions.find((x) => x.id === editingId);
+    if (!s) return undefined;
+    return {
+      id: s.id,
+      serviceId: s.serviceId,
+      name: s.name,
+      startDate: s.startDate,
+      amount: s.amount,
+      currency: s.currency,
+      monthly: s.monthly !== undefined ? s.monthly : inferMonthlyFromHistory(s, subscriptions),
+    };
+  }, [editingId, subscriptions]);
 
   const selectedDateItems = useSelectedDateItems(
     selectedDate,
@@ -203,7 +190,6 @@ function App() {
               onPrevMonth={prevMonth}
               onNextMonth={nextMonth}
               className="flex-1"
-              onGridHeightChange={setCalendarHeight}
               onSelectYear={selectYear}
               currencySymbol={selectedCurrency?.symbol ?? ''}
               markedDates={markedDates}
@@ -235,26 +221,7 @@ function App() {
           currencies={currencies}
           subscriptions={services}
           mode={dialogMode}
-          initial={
-            editingId
-              ? (() => {
-                  const s = subscriptions.find((x) => x.id === editingId);
-                  return s
-                    ? {
-                        id: s.id,
-                        serviceId: s.serviceId,
-                        startDate: s.startDate,
-                        amount: s.amount,
-                        currency: s.currency,
-                        monthly:
-                          s.monthly !== undefined
-                            ? s.monthly
-                            : inferMonthlyFromHistory(s, subscriptions),
-                      }
-                    : undefined;
-                })()
-              : undefined
-          }
+          initial={editingInitial}
           onDelete={handleDelete}
           onSave={handleSave}
         />

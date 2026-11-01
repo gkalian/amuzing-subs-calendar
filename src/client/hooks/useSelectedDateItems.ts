@@ -13,7 +13,7 @@ export function useSelectedDateItems(
     return subscriptions
       .filter((sub) => sub.startDate === selectedDate)
       .map((sub) => {
-        const name = serviceNameMap[sub.serviceId] ?? sub.serviceId;
+        const name = serviceNameMap[sub.serviceId] ?? sub.name ?? sub.serviceId;
         const symbol = currencySymbolMap[sub.currency] ?? sub.currency;
         return {
           id: sub.id,

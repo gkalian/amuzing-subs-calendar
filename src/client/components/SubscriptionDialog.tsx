@@ -1,4 +1,5 @@
 import { memo, useEffect, useMemo, useState } from 'react';
+import dayjs from 'dayjs';
 import DatePicker from './DatePicker';
 import Modal from './forms/Modal';
 import Autocomplete from './forms/Autocomplete';
@@ -20,6 +21,7 @@ type SubscriptionDialogProps = {
   initial?: {
     id: string;
     serviceId: string;
+    name?: string;
     startDate: string;
     amount: number;
     currency: string;
@@ -29,6 +31,7 @@ type SubscriptionDialogProps = {
   onSave?: (payload: {
     id?: string; // present in edit mode
     serviceId: string;
+    name?: string; // set for custom services that are not in the catalog
     startDate: string; // YYYY-MM-DD
     amount: number;
     currency: string; // code
@@ -48,44 +51,60 @@ function SubscriptionDialog({
   onDelete,
   onSave,
 }: SubscriptionDialogProps) {
-  // Always use current date when dialog is opened
-  const [date, setDate] = useState<string>(() => new Date().toISOString().slice(0, 10));
+  // Always use current local date when dialog is opened
+  const [date, setDate] = useState<string>(() => dayjs().format('YYYY-MM-DD'));
   const [selectedSub, setSelectedSub] = useState<string>('');
   const [query, setQuery] = useState<string>(''); // acts both as search text and custom value
   const [amount, setAmount] = useState<string>('0.00');
   const [curr, setCurr] = useState<Currency>(currency);
   const [currOpen, setCurrOpen] = useState<boolean>(false);
   const [monthly, setMonthly] = useState<boolean>(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
-  // Initialize/reset values on open depending on mode
+  // Initialize/reset values when the dialog opens or switches to another entry.
+  // Deliberately keyed on initial?.id, not the object, so re-renders don't wipe user input.
   useEffect(() => {
     if (!open) return;
+    setSaveError(null);
     if (mode === 'edit' && initial) {
       setDate(initial.startDate);
       setAmount((Number(initial.amount) || 0).toFixed(2));
       setCurr(currencies.find((c) => c.code === initial.currency) || currency);
-      setSelectedSub(initial.serviceId);
       const found = subscriptions.find((s) => s.id === initial.serviceId);
-      setQuery(found?.name || '');
+      // Custom services are not in the catalog: keep the free text so it can be edited
+      setSelectedSub(found ? initial.serviceId : '');
+      // Old custom entries have no name: recover it from the id so re-saving keeps the same id
+      setQuery(
+        found?.name ||
+          initial.name ||
+          (initial.serviceId.startsWith('custom-') ? initial.serviceId.slice('custom-'.length) : ''),
+      );
       setMonthly(Boolean(initial.monthly));
     } else {
-      setDate(new Date().toISOString().slice(0, 10));
+      setDate(dayjs().format('YYYY-MM-DD'));
       setAmount('0.00');
       setCurr(currency);
       setSelectedSub('');
       setQuery('');
       setMonthly(false);
     }
-  }, [open, mode, initial, currencies, currency, subscriptions]);
+    // oxlint-disable-next-line react-hooks/exhaustive-deps -- reset only on open / entry change
+  }, [open, mode, initial?.id]);
 
-  useEffect(() => {
-    if (!open) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  // Escape is handled by Modal
+
+  async function run(action: () => void | Promise<void>, failMessage: string) {
+    setBusy(true);
+    setSaveError(null);
+    try {
+      await action();
+    } catch {
+      setSaveError(failMessage);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   useEffect(() => setCurr(currency), [currency]);
 
@@ -119,7 +138,7 @@ function SubscriptionDialog({
     return input
       .trim()
       .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/[^\p{L}\p{N}]+/gu, '-')
       .replace(/^-+|-+$/g, '');
   }
 
@@ -215,17 +234,27 @@ function SubscriptionDialog({
         </label>
       </div>
 
+      {saveError && (
+        <div
+          role="alert"
+          className="rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-sm text-red-200"
+        >
+          {saveError}
+        </div>
+      )}
+
       <div className="mt-5 flex justify-end gap-2">
         {mode === 'edit' && initial && (
           <Button
             type="button"
             variant="danger"
             size="md"
+            disabled={busy}
             onClick={async () => {
               if (!initial) return;
               const confirmed = window.confirm('Delete this subscription?');
               if (!confirmed) return;
-              await onDelete?.(initial.id);
+              await run(() => onDelete?.(initial.id), 'Failed to delete. Please try again.');
             }}
           >
             Delete
@@ -234,21 +263,21 @@ function SubscriptionDialog({
         <Button
           type="button"
           size="md"
+          disabled={busy}
           onClick={async () => {
             const userText = query.trim();
+            const slug = slugify(userText);
             const payload = {
               id: mode === 'edit' ? initial?.id : undefined,
-              serviceId: selectedSub || (userText ? `custom-${slugify(userText)}` : 'custom'),
+              serviceId: selectedSub || (slug ? `custom-${slug}` : 'custom'),
+              name: selectedSub ? undefined : userText || undefined,
               startDate: date,
               amount: Number.parseFloat(amount || '0') || 0,
               currency: curr.code,
               monthly: monthly || undefined,
             };
-            try {
-              await onSave?.(payload);
-            } finally {
-              if (!onSave) onClose();
-            }
+            if (!onSave) return onClose();
+            await run(() => onSave(payload), 'Failed to save. Please try again.');
           }}
           variant="primary"
         >
