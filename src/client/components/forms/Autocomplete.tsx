@@ -9,6 +9,7 @@ export type AutocompleteProps<T = any> = {
   options: ListboxOption<T>[];
   onSelect: (opt: ListboxOption<T>) => void;
   placeholder?: string;
+  maxLength?: number;
 };
 
 export default function Autocomplete<T>({
@@ -17,6 +18,7 @@ export default function Autocomplete<T>({
   options,
   onSelect,
   placeholder,
+  maxLength,
 }: AutocompleteProps<T>) {
   const [open, setOpen] = useState(false);
   const ref = useOutsideClick<HTMLDivElement>(open, () => setOpen(false));
@@ -36,6 +38,7 @@ export default function Autocomplete<T>({
           setOpen(true);
         }}
         placeholder={placeholder}
+        maxLength={maxLength}
         onFocus={() => setOpen(true)}
       />
       {open && filtered.length > 0 && (

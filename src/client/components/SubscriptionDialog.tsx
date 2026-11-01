@@ -7,6 +7,11 @@ import Dropdown from './forms/Dropdown';
 import Listbox, { type ListboxOption } from './forms/Listbox';
 import NumberInput from './forms/NumberInput';
 import Button from './forms/Button';
+import { ApiError } from '../services/apiAdapter';
+
+// Server accepts serviceId and name up to 100 chars; custom ids get a 'custom-' prefix
+const MAX_NAME_LENGTH = 100;
+const CUSTOM_PREFIX = 'custom-';
 
 type Currency = { code: string; name: string; symbol: string };
 type Service = { id: string; name: string };
@@ -99,8 +104,9 @@ function SubscriptionDialog({
     setSaveError(null);
     try {
       await action();
-    } catch {
-      setSaveError(failMessage);
+    } catch (e) {
+      // Validation errors (4xx) explain what is wrong; network/server errors get a generic text
+      setSaveError(e instanceof ApiError && e.isClientError ? e.message : failMessage);
     } finally {
       setBusy(false);
     }
@@ -133,7 +139,9 @@ function SubscriptionDialog({
       .trim()
       .toLowerCase()
       .replace(/[^\p{L}\p{N}]+/gu, '-')
-      .replace(/^-+|-+$/g, '');
+      .replace(/^-+|-+$/g, '')
+      .slice(0, MAX_NAME_LENGTH - CUSTOM_PREFIX.length)
+      .replace(/-+$/, '');
   }
 
   const title = mode === 'edit' ? 'Edit subscription' : 'New subscription';
@@ -209,6 +217,7 @@ function SubscriptionDialog({
                 setQuery(opt.value.name);
               }}
               placeholder="Type a service or search..."
+              maxLength={MAX_NAME_LENGTH}
             />
           </div>
         </div>
@@ -263,7 +272,7 @@ function SubscriptionDialog({
             const slug = slugify(userText);
             const payload = {
               id: mode === 'edit' ? initial?.id : undefined,
-              serviceId: selectedSub || (slug ? `custom-${slug}` : 'custom'),
+              serviceId: selectedSub || (slug ? `${CUSTOM_PREFIX}${slug}` : 'custom'),
               name: selectedSub ? undefined : userText || undefined,
               startDate: date,
               amount: Number.parseFloat(amount || '0') || 0,

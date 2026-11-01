@@ -14,9 +14,20 @@ beforeAll(async () => {
   // DATA_DIR is read when fileStorage is loaded, so set it before importing the app
   process.env.DATA_DIR = dataDir;
   const { createApp } = await import('./app.js');
-  server = createApp().listen(0);
-  await new Promise((r) => server.once('listening', r));
-  base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+  const app = createApp();
+  // A random port may land on one that fetch() refuses ("bad port", e.g. 6000) — pick another
+  for (let attempt = 0; ; attempt++) {
+    server = app.listen(0);
+    await new Promise((r) => server.once('listening', r));
+    base = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
+    try {
+      await fetch(`${base}/health`);
+      break;
+    } catch (e) {
+      await new Promise((r) => server.close(r));
+      if (attempt >= 5) throw e;
+    }
+  }
 });
 
 afterAll(async () => {
