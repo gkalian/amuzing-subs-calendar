@@ -1,0 +1,13 @@
+node_modules
+dist
+data
+.git
+.github
+helm
+coverage
+*.log
+*.tgz
+.env
+.env.*
+Dockerfile
+.dockerignore

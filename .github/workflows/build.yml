@@ -1,22 +1,60 @@
-name: Build And Publish Frontend Image
+name: CI
 
 on:
   push:
     branches:
       - main
+  pull_request:
+  # Manual run re-publishes the image and chart for the current version
+  # (useful if a previous publish step failed after the release was cut)
+  workflow_dispatch:
 
-permissions:
-  contents: write
-  packages: write
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build:
+  check:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
 
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: 'npm'
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test:ci
+      - run: npm run build
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.21.4
+
+      - name: Lint Helm chart
+        run: |
+          helm lint helm
+          helm template ci helm > /dev/null
+
+  release:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
@@ -24,72 +62,67 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm ci
+
+      - name: Run semantic-release
+        id: release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BEFORE=$(node -p "require('./package.json').version")
+          npx semantic-release
+          AFTER=$(node -p "require('./package.json').version")
+          echo "version=$AFTER" >> "$GITHUB_OUTPUT"
+          if [ "$BEFORE" != "$AFTER" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+            echo "Publishing version $AFTER"
+          else
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "No new release, skipping publish"
+          fi
+
+      - name: Set up Helm
+        if: steps.release.outputs.publish == 'true'
+        uses: azure/setup-helm@v5
+        with:
+          version: v3.21.4
+
+      - name: Package and push Helm chart (OCI)
+        if: steps.release.outputs.publish == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.release.outputs.version }}
+        run: |
+          echo "$GITHUB_TOKEN" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
+          helm package helm --version "$VERSION" --app-version "$VERSION" --destination .
+          helm push "amuzing-subs-calendar-${VERSION}.tgz" oci://ghcr.io/${{ github.repository_owner }}/charts
 
       - name: Set up Docker Buildx
+        if: steps.release.outputs.publish == 'true'
         uses: docker/setup-buildx-action@v3
 
       - name: Login to GitHub Container Registry
+        if: steps.release.outputs.publish == 'true'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Run semantic-release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
-
-      - name: Read version
-        id: version
-        run: |
-          VERSION=$(node -p "require('./package.json').version")
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-          echo "Using version $VERSION"
-
-      - name: Set up Helm
-        uses: azure/setup-helm@v5
-        with:
-          version: v3.21.4
-
-      - name: Login to GHCR for Helm (OCI)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "$GITHUB_TOKEN" | helm registry login ghcr.io -u "${{ github.actor }}" --password-stdin
-
-      - name: Package Helm chart
-        env:
-          CHART_DIR: helm
-        run: |
-          helm lint "$CHART_DIR"
-          helm dependency update "$CHART_DIR" || true
-          helm package "$CHART_DIR" \
-            --version "${{ steps.version.outputs.version }}" \
-            --app-version "${{ steps.version.outputs.version }}" \
-            --destination .
-
-      - name: Push Helm chart to GHCR (OCI)
-        env:
-          CHART_NAME: amuzing-subs-calendar
-        run: |
-          CHART_TGZ="${CHART_NAME}-${{ steps.version.outputs.version }}.tgz"
-          helm push "$CHART_TGZ" oci://ghcr.io/${{ github.repository_owner }}/charts
-
       - name: Build and push Docker image
+        if: steps.release.outputs.publish == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
           push: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.version.outputs.version }}
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.release.outputs.version }}

@@ -8,7 +8,10 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.replicaCount | default 1 }}
+  # RWO volume + file storage: stop the old pod before starting the new one
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "amuzing-subs-calendar.name" . }}
@@ -26,7 +29,7 @@ spec:
 {{- end }}
       containers:
         - name: app
-          image: '{{ .Values.image.repository }}:{{ .Values.image.tag }}'
+          image: '{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}'
           imagePullPolicy: {{ .Values.image.pullPolicy }}
 {{- if .Values.securityContext.enabled }}
           securityContext:
@@ -62,12 +65,30 @@ spec:
               port: http
             initialDelaySeconds: 5
             periodSeconds: 20
+{{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+{{- end }}
           volumeMounts:
             - name: data
               mountPath: {{ .Values.persistence.mountPath }}
+{{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+{{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
+{{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+{{- end }}
       volumes:
         - name: data
-{{- if and .Values.persistence.enabled (eq .Values.persistence.type "hostPath") }}
+{{- if not .Values.persistence.enabled }}
+          emptyDir: {}
+{{- else if eq .Values.persistence.type "hostPath" }}
           hostPath:
             path: {{ .Values.persistence.hostPath.path }}
             type: {{ .Values.persistence.hostPath.type | default "Directory" }}

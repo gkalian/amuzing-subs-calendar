@@ -11,7 +11,9 @@
     "build": "tsc -p tsconfig.server.json && vite build",
     "start": "node dist/server/index.js",
     "test": "vitest",
+    "test:ci": "vitest run --passWithNoTests",
     "lint": "oxlint .",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.server.json --noEmit",
     "format": "prettier --write ."
   },
   "dependencies": {
@@ -69,7 +71,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "\n  echo \"Skipping Helm Chart update: no chart present.\"\n"
+          "prepareCmd": "sed -i -E \"s/^version: .*/version: ${nextRelease.version}/; s/^appVersion: .*/appVersion: '${nextRelease.version}'/\" helm/Chart.yaml"
         }
       ],
       [
@@ -78,7 +80,8 @@
           "assets": [
             "package.json",
             "package-lock.json",
-            "CHANGELOG.md"
+            "CHANGELOG.md",
+            "helm/Chart.yaml"
           ],
           "message": "chore(release): ${nextRelease.version} [skip ci]"
         }
